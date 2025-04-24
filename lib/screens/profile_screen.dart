@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:leafy_app_flutter/providers/user_profile_provider.dart';
 import 'package:leafy_app_flutter/providers/auth_provider.dart';
 import 'edit_profile_screen.dart';
-import 'package:leafy_app_flutter/LoginScreen.dart';
+import 'package:leafy_app_flutter/screens/LoginScreen.dart';
 
 // Pantalla de perfil de usuario
 class ProfileScreen extends StatelessWidget {

@@ -11,6 +11,8 @@ import 'providers/plant_search_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/user_profile_provider.dart';
 import 'providers/progress_provider.dart';
+import 'screens/plants_screen.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +53,9 @@ void main() async {
           '/search': (context) => const SearchScreen(),
           '/calendar': (context) => const CalendarPage(),
           '/profile': (context) => const ProfileScreen(),
-        },
+          '/misplantas': (context) => const PlantsScreen(), // ✅ corregido aquí
+        },  
+
       ),
     ),
   );

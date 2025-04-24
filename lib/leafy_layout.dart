@@ -44,6 +44,10 @@ class LeafyLayout extends StatelessWidget {
                     onPressed: () => Navigator.pushNamed(context, '/profile'),
                     child: const Text("Perfil"),
                   ),
+                  TextButton(
+                    onPressed: () => Navigator.pushNamed(context, '/misplantas'),
+                    child: const Text("Mis Plantas"),
+                  ),
                   const SizedBox(width: 16),
                   IconButton(
                     onPressed: () => Navigator.pushNamed(context, '/profile'),

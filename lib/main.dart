@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'supabase_config.dart'; // Configuración personalizada de Supabase
-import 'LoginScreen.dart'; // Pantalla de inicio de sesión
-import 'main_screen.dart'; // Pantalla principal con navegación
+import 'supabase_config.dart'; 
+import 'LoginScreen.dart'; 
+import 'main_screen.dart'; 
 import 'providers/auth_provider.dart';
 import 'providers/plant_search_provider.dart';
 import 'providers/notification_provider.dart';

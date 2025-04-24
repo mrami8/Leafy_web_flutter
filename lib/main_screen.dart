@@ -4,7 +4,6 @@ import 'package:leafy_app_flutter/screens/plants_screen.dart';
 import 'package:leafy_app_flutter/screens/profile_screen.dart';
 import 'package:leafy_app_flutter/screens/search_screen.dart';
 
-// Pantalla principal que contiene la navegación entre pestañas
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -13,41 +12,71 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0; // Índice actual de la pestaña seleccionada (0 = Buscar)
+  int _selectedIndex = 0;
 
-  // Lista de pantallas asociadas a cada pestaña
   final List<Widget> _screens = [
-    SearchScreen(),    // Índice 0: Buscar plantas
-    ProfileScreen(),   // Índice 1: Perfil del usuario
-    CalendarPage(),    // Índice 2: Calendario de cuidados
-    PlantsScreen(),    // Índice 3: Jardín del usuario
+    SearchScreen(),
+    ProfileScreen(),
+    CalendarPage(),
+    PlantsScreen(),
   ];
 
-  // Cambia la pestaña activa cuando el usuario pulsa en una del BottomNavigationBar
-  void _onItemTapped(int index) {
+  final List<String> _titles = [
+    "Buscar",
+    "Perfil",
+    "Calendario",
+    "Plantas",
+  ];
+
+  void _onItemSelected(int index) {
     setState(() {
       _selectedIndex = index;
     });
+    Navigator.pop(context); // Cierra el Drawer después de seleccionar
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_selectedIndex], // Muestra la pantalla seleccionada
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFFD7EAC8), // Fondo verde pastel oscuro
-        selectedItemColor: Colors.green, // Ítem activo en blanco
-        unselectedItemColor: Colors.grey[800], // Ítems inactivos en gris oscuro
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Buscar"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: "Calendario"),
-          BottomNavigationBarItem(icon: Icon(Icons.local_florist), label: "Plantas"),
-        ],
+      appBar: AppBar(
+        title: Text(_titles[_selectedIndex]),
+        backgroundColor: const Color(0xFFD7EAC8),
       ),
+      drawer: Drawer(
+        backgroundColor: const Color(0xFFD7EAC8),
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xFFD7EAC8),
+              ),
+              child: Text('Leafy Menu', style: TextStyle(fontSize: 24)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.search),
+              title: const Text('Buscar'),
+              onTap: () => _onItemSelected(0),
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Perfil'),
+              onTap: () => _onItemSelected(1),
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_today),
+              title: const Text('Calendario'),
+              onTap: () => _onItemSelected(2),
+            ),
+            ListTile(
+              leading: const Icon(Icons.local_florist),
+              title: const Text('Plantas'),
+              onTap: () => _onItemSelected(3),
+            ),
+          ],
+        ),
+      ),
+      body: _screens[_selectedIndex],
     );
   }
 }

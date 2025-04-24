@@ -7,7 +7,7 @@ class SupabaseConfig {
 
   // Clave pública de acceso (anon key) para interactuar con la API de Supabase
   static const String supabaseAnonKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4cnRweXV2aGZqZmh2bG1kYmRiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MzYwNDkzNCwiZXhwIjoyMDU5MTgwOTM0fQ.wWBZBMIXntAcx8BY3KKHLN7K-yXv035-s3d1bWZruXU';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4cnRweXV2aGZqZmh2bG1kYmRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM2MDQ5MzQsImV4cCI6MjA1OTE4MDkzNH0.3KLm_jlxqEtPYHxap0ScW5poikfTa7Hj_KVyyXn4C8c';
 
   // Método que inicializa la conexión con Supabase usando la URL y la anon key
   static Future<void> init() async {

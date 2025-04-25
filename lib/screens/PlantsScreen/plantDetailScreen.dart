@@ -14,30 +14,42 @@ class PlantDetailScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Encabezado con botón de volver y nombre de la planta
+            // Header con menú superior
             Container(
-              color: const Color(0xFFD6E8C4), // Verde pastel del encabezado
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              color: const Color(0xFFD7EAC8),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GestureDetector(
-                    onTap:
-                        () => Navigator.pop(
-                          context,
-                        ), // Volver a la pantalla anterior
-                    child: const Icon(Icons.arrow_back, size: 24),
+                  const Icon(Icons.eco, color: Colors.green),
+                  const SizedBox(width: 8),
+                  const Text(
+                    "Leafy",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  Text(
-                    plant.nombre,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 18,
-                    ),
+                  const Spacer(),
+
+                  // Mostrar opciones si hay sesión
+                  TextButton(
+                    onPressed: () => Navigator.pushNamed(context, '/search'),
+                    child: const Text("Buscar"),
                   ),
-                  const SizedBox(
-                    width: 24,
-                  ), // Espaciador para centrar el título
+                  TextButton(
+                    onPressed: () => Navigator.pushNamed(context, '/calendar'),
+                    child: const Text("Calendario"),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pushNamed(context, '/profile'),
+                    child: const Text("Perfil"),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pushNamed(context, '/misplantas'),
+                    child: const Text("Mis Plantas"),
+                  ),
+                  const SizedBox(width: 16),
+                  IconButton(
+                    onPressed: () => Navigator.pushNamed(context, '/profile'),
+                    icon: const Icon(Icons.person),
+                  ),
                 ],
               ),
             ),
@@ -49,17 +61,39 @@ class PlantDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Encabezado con botón de volver y nombre de la planta
+                    Container(
+                      color: const Color(0xFFD6E8C4), // Verde pastel del encabezado
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context), // Volver a la pantalla anterior
+                            child: const Icon(Icons.arrow_back, size: 24),
+                          ),
+                          Text(
+                            plant.nombre,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 24), // Espaciador para centrar el título
+                        ],
+                      ),
+                    ),
+
                     // Imagen principal o marcador si no hay
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child:
-                          plant.imagenPrincipal.isNotEmpty
-                              ? Image.network(
-                                plant.imagenPrincipal,
-                                fit: BoxFit.cover,
-                                height: 200,
-                              )
-                              : const Placeholder(fallbackHeight: 200),
+                      child: plant.imagenPrincipal.isNotEmpty
+                          ? Image.network(
+                              plant.imagenPrincipal,
+                              fit: BoxFit.cover,
+                              height: 200,
+                            )
+                          : const Placeholder(fallbackHeight: 200),
                     ),
 
                     const SizedBox(height: 12),
@@ -136,14 +170,12 @@ class PlantDetailScreen extends StatelessWidget {
                     if (plant.imagenes.isNotEmpty)
                       GridView.builder(
                         shrinkWrap: true, // Para que no tome espacio infinito
-                        physics:
-                            const NeverScrollableScrollPhysics(), // Scroll heredado del padre
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 8,
-                              mainAxisSpacing: 8,
-                            ),
+                        physics: const NeverScrollableScrollPhysics(), // Scroll heredado del padre
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                        ),
                         itemCount: plant.imagenes.length,
                         itemBuilder: (context, index) {
                           return ClipRRect(

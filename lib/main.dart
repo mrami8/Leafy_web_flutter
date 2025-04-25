@@ -52,7 +52,7 @@ void main() async {
           '/': (context) => const LoginScreen(),
           '/search': (context) => const SearchScreen(),
           '/calendar': (context) => const CalendarPage(),
-          '/profile': (context) => const ProfileScreen(),
+            '/profile': (context) => const ProfileScreen(),
           '/misplantas': (context) => const PlantsScreen(), // ✅ corregido aquí
         },  
 

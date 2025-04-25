@@ -53,90 +53,99 @@ class SearchScreen extends StatelessWidget {
                     );
                   }
 
-                  return GridView.builder(
-                    padding: const EdgeInsets.all(8),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12.0,
-                      mainAxisSpacing: 12.0,
-                      childAspectRatio: 1,
-                    ),
-                    itemCount: provider.plants.length,
-                    itemBuilder: (context, index) {
-                      final plant = provider.plants[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  PlantDetailScreen(plant: plant),
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      int crossAxisCount = (constraints.maxWidth ~/ 160).clamp(2, 8);
+
+                      return GridView.builder(
+                        padding: const EdgeInsets.all(8),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 12.0,
+                          mainAxisSpacing: 12.0,
+                          childAspectRatio: 0.90,
+                        ),  
+                        itemCount: provider.plants.length,
+                        itemBuilder: (context, index) {
+                          final plant = provider.plants[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      PlantDetailScreen(plant: plant),
+                                ),
+                              );
+                            },
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 2,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(12),
+                                    ),
+                                    child: Container(
+                                      height: 100,
+                                      color: Colors.grey[200],
+                                      child: Image.network(
+                                        plant.imagenPrincipal,
+                                        fit: BoxFit.cover,
+                                        filterQuality: FilterQuality.high,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return const Icon(
+                                            Icons.broken_image,
+                                            size: 50,
+                                            color: Colors.grey,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(6.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        if (plant.nombre.trim().isNotEmpty)
+                                          Text(
+                                            plant.nombre,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        if (plant.nombreCientifico
+                                            .trim()
+                                            .isNotEmpty)
+                                          Text(
+                                            plant.nombreCientifico,
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey[600],
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        const SizedBox(height: 2),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 2,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              ClipRRect(
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(12),
-                                ),
-                                child: Container(
-                                  height: 120,
-                                  color: Colors.grey[200],
-                                  child: Image.network(
-                                    plant.imagenPrincipal,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Icon(
-                                        Icons.broken_image,
-                                        size: 50,
-                                        color: Colors.grey,
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(6.0),
-                                child: Column(
-                                  children: [
-                                    if (plant.nombre.trim().isNotEmpty)
-                                      Text(
-                                        plant.nombre,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    if (plant.nombreCientifico
-                                        .trim()
-                                        .isNotEmpty)
-                                      Text(
-                                        plant.nombreCientifico,
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.grey[600],
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                       );
                     },
                   );

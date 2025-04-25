@@ -16,52 +16,86 @@ class ProfileScreen extends StatelessWidget {
     return LeafyLayout(
       child: userProfileProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Center(
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text(
-                      "LEAFY",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 20,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: userProfileProvider.fotoPerfil.isNotEmpty
-                          ? NetworkImage(userProfileProvider.fotoPerfil)
-                          : null,
-                      backgroundColor: const Color(0xFFD6E8C4),
-                      child: userProfileProvider.fotoPerfil.isEmpty
-                          ? const Icon(
-                              Icons.person,
-                              size: 50,
-                              color: Colors.grey,
-                            )
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      userProfileProvider.username.isNotEmpty
-                          ? userProfileProvider.username
-                          : "Sin nombre",
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      userProfileProvider.email.isNotEmpty
-                          ? userProfileProvider.email
-                          : "Sin email",
-                      style: TextStyle(color: Colors.grey[700]),
+                    Stack(
+                      children: [
+                        Container(
+                          height: 250,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            image: const DecorationImage(
+                              image: NetworkImage(
+                                "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1350&q=80",
+                              ),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          height: 250,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.black.withOpacity(0.2),
+                          ),
+                        ),
+                        Positioned.fill(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(width: 24),
+                              CircleAvatar(
+                                radius: 90,
+                                backgroundImage:
+                                    userProfileProvider.fotoPerfil.isNotEmpty
+                                        ? NetworkImage(
+                                            userProfileProvider.fotoPerfil)
+                                        : null,
+                                backgroundColor: const Color(0xFFD6E8C4),
+                                child: userProfileProvider.fotoPerfil.isEmpty
+                                    ? const Icon(Icons.person,
+                                        size: 90, color: Colors.grey)
+                                    : null,
+                              ),
+                              const SizedBox(width: 40),
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      userProfileProvider.username.isNotEmpty
+                                          ? userProfileProvider.username
+                                          : "Sin nombre",
+                                      style: const TextStyle(
+                                        fontSize: 26,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      userProfileProvider.email.isNotEmpty
+                                          ? userProfileProvider.email
+                                          : "Sin email",
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 24),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 30),
                     ElevatedButton.icon(
@@ -69,8 +103,7 @@ class ProfileScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => EditProfileScreen(),
-                          ),
+                              builder: (_) => EditProfileScreen()),
                         );
                       },
                       icon: const Icon(Icons.edit),
@@ -78,6 +111,8 @@ class ProfileScreen extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFD6E8C4),
                         foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -94,6 +129,8 @@ class ProfileScreen extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
                       ),
                     ),
                   ],
@@ -131,24 +168,29 @@ class LeafyLayout extends StatelessWidget {
                 const Spacer(),
                 if (auth.session != null) ...[
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/search'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/search'),
                     child: const Text("Buscar"),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/calendar'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/calendar'),
                     child: const Text("Calendario"),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/profile'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/profile'),
                     child: const Text("Perfil"),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/misplantas'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/misplantas'),
                     child: const Text("Mis Plantas"),
                   ),
                   const SizedBox(width: 16),
                   IconButton(
-                    onPressed: () => Navigator.pushNamed(context, '/profile'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/profile'),
                     icon: const Icon(Icons.person),
                   ),
                 ],
@@ -159,22 +201,69 @@ class LeafyLayout extends StatelessWidget {
           Container(
             width: double.infinity,
             color: const Color(0xFFD7EAC8),
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 36),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Wrap(
-                  spacing: 40,
-                  runSpacing: 16,
+                  spacing: 60,
+                  runSpacing: 20,
                   alignment: WrapAlignment.center,
-                  children: const [
-                    _FooterColumn(title: "Leafy", items: ["Sobre nosotros", "Contacto", "FAQ"]),
-                    _FooterColumn(title: "Legal", items: ["Política de privacidad", "Términos"]),
-                    _FooterColumn(title: "Síguenos", items: ["🌿", "📸", "📘"]),
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text("Leafy",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        SizedBox(height: 8),
+                        Text("Sobre nosotros"),
+                        Text("Contacto"),
+                        Text("FAQ"),
+                        Text("Blog"),
+                        Text("Comunidad"),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text("Legal",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        SizedBox(height: 8),
+                        Text("Política de privacidad"),
+                        Text("Términos y condiciones"),
+                        Text("Licencia de uso"),
+                        Text("Cookies"),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text("Síguenos",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        SizedBox(height: 8),
+                        Text("🌿 Instagram"),
+                        Text("📘 Facebook"),
+                        Text("🐦 Twitter"),
+                        Text("🎥 YouTube"),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text("Extras",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        SizedBox(height: 8),
+                        Text("Lorem ipsum dolor sit amet."),
+                        Text("Consectetur adipiscing elit."),
+                        Text("Integer nec odio. Praesent libero."),
+                        Text("Sed cursus ante dapibus diam."),
+                      ],
+                    ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 24),
                 const Text(
-                  "© 2025 Leafy",
+                  "© 2025 Leafy. Todos los derechos reservados.",
                   style: TextStyle(color: Colors.black54),
                 ),
               ],
@@ -182,25 +271,6 @@ class LeafyLayout extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _FooterColumn extends StatelessWidget {
-  final String title;
-  final List<String> items;
-
-  const _FooterColumn({required this.title, required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        ...items.map((item) => Text(item)).toList(),
-      ],
     );
   }
 }

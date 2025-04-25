@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:leafy_app_flutter/providers/user_profile_provider.dart';
-import 'package:leafy_app_flutter/providers/auth_provider.dart';
+import 'package:leafy_app_flutter/providers/Profile/user_profile_provider.dart';
+import 'package:leafy_app_flutter/providers/General/auth_provider.dart';
 
 // Pantalla para editar el perfil del usuario
 class EditProfileScreen extends StatefulWidget {

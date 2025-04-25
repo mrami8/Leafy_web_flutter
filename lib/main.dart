@@ -3,15 +3,15 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'supabase_config.dart'; 
 import 'screens/LoginScreen.dart'; 
-import 'screens/search_screen.dart';
-import 'screens/calendar_screen.dart';
-import 'screens/profile_screen.dart';
-import 'providers/auth_provider.dart';
-import 'providers/plant_search_provider.dart';
-import 'providers/notification_provider.dart';
-import 'providers/user_profile_provider.dart';
-import 'providers/progress_provider.dart';
-import 'screens/plants_screen.dart';
+import 'screens/PlantsScreen/search_screen.dart';
+import 'screens/CalendarScreen/calendar_screen.dart';
+import 'screens/ProfileScreen/profile_screen.dart';
+import 'providers/General/auth_provider.dart';
+import 'providers/Plants/plant_search_provider.dart';
+import 'providers/Calendar/notification_provider.dart';
+import 'providers/Profile/user_profile_provider.dart';
+import 'providers/Garden/progress_provider.dart';
+import 'screens/GardenScreen/plants_screen.dart';
 
 
 void main() async {

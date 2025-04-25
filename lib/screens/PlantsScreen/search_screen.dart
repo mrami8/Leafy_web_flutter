@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:leafy_app_flutter/leafy_layout.dart';
 import 'package:provider/provider.dart';
-import 'package:leafy_app_flutter/providers/plant_search_provider.dart';
+import 'package:leafy_app_flutter/providers/Plants/plant_search_provider.dart';
 import 'plantDetailScreen.dart';
 
 class SearchScreen extends StatelessWidget {

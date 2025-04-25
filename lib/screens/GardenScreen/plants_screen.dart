@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:leafy_app_flutter/screens/planta_crecimiento_screen.dart';
+import 'package:leafy_app_flutter/screens/GardenScreen/planta_crecimiento_screen.dart';
 
 // Pantalla que muestra las plantas añadidas por el usuario en su jardín
 class PlantsScreen extends StatefulWidget {

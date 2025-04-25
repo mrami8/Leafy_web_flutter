@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'auth_provider.dart';
+import '../General/auth_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Provider que gestiona la información del perfil del usuario

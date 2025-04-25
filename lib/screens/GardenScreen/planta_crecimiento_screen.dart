@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
-import '../providers/progress_provider.dart';
+import '../../providers/Garden/progress_provider.dart';
 
 // Pantalla que muestra el progreso de crecimiento de una planta mediante fotos
 class PlantGrowthPage extends StatefulWidget {

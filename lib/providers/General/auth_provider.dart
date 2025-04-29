@@ -54,42 +54,42 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // Registro con nombre y foto (la contraseña se maneja automáticamente)
-  Future<bool> register(
-    String email,
-    String password,
-    String nombre, {
-    String foto = "",
-  }) async {
-    try {
-      final response = await supabase.auth.signUp(
-        email: email,
-        password: password, // Supabase maneja la contraseña internamente
-      );
+Future<bool> register(
+  String email,
+  String password,
+  String nombre, {
+  String foto = "",
+}) async {
+  try {
+    final response = await supabase.auth.signUp(
+      email: email,
+      password: password,
+    );
 
-      if (response.user != null) {
-        // Insertamos los datos adicionales en la tabla 'usuarios', sin la contraseña
-        await supabase
-            .from('usuarios')
-            .insert({
-              'id': response.user!.id,
-              'email': email,
-              'nombre': nombre,
-              'foto_perfil': foto, // Foto opcional
-            })
-            .then((value) {});
+    final user = response.user;
 
-        _session = response.session;
-        _user = response.user;
-        await _loadUserProfile();
-        notifyListeners();
-        return true;
-      }
+    if (user != null) {
+      await supabase.from('usuarios').insert({
+        'id': user?.id ?? '',
+        'email': email,
+        'nombre': nombre,
+        'foto_perfil': foto,
+      });
 
-      return false;
-    } on AuthException catch (_) {
-      return false;
+      print('✅ Usuario registrado correctamente. Esperando confirmación por correo.');
+      return true;
     }
+
+    return false;
+  } on AuthException catch (e) {
+    print('❌ Error de registro: ${e.message}');
+    return false;
+  } catch (e) {
+    print('❌ Error inesperado: $e');
+    return false;
   }
+}
+
 
   // Cargar perfil del usuario
   Future<void> _loadUserProfile() async {

@@ -17,10 +17,7 @@ class RegisterScreen extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(
-              'assets/FondoPantalla.jpg',
-              fit: BoxFit.cover,
-            ),
+            Image.asset('assets/FondoPantalla.jpg', fit: BoxFit.cover),
             Container(color: Colors.black.withOpacity(0.2)),
 
             Align(
@@ -40,24 +37,18 @@ class RegisterScreen extends StatelessWidget {
                       const SizedBox(height: 20),
                       TextField(
                         controller: nameController,
-                        decoration: const InputDecoration(
-                          labelText: "Nombre",
-                        ),
+                        decoration: const InputDecoration(labelText: "Nombre"),
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: emailController,
-                        decoration: const InputDecoration(
-                          labelText: "Correo electrónico",
-                        ),
+                        decoration: const InputDecoration(labelText: "Correo electrónico"),
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: passwordController,
                         obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: "Contraseña",
-                        ),
+                        decoration: const InputDecoration(labelText: "Contraseña"),
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton(
@@ -82,8 +73,24 @@ class RegisterScreen extends StatelessWidget {
 
                           final success = await authProvider.register(email, password, nombre);
 
-                          if (success && authProvider.session != null) {
-                            Navigator.pushNamed(context, '/search');
+                          if (success) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Registro exitoso"),
+                                content: const Text(
+                                  "Revisa tu correo electrónico y confirma tu cuenta antes de iniciar sesión.",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pushReplacementNamed(context, '/');
+                                    },
+                                    child: const Text("Ir a iniciar sesión"),
+                                  ),
+                                ],
+                              ),
+                            );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

@@ -98,6 +98,41 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 30),
+
+                    // Sección de información personal falsa
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF3F7E8),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text("Información personal",
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 16),
+                          Text("📍 Ubicación: Sevilla, España"),
+                          Text("🎂 Fecha de nacimiento: 22 de octubre de 1989"),
+                          Text("🧬 Intereses: Ecología urbana, botánica exótica, acuaponía doméstica"),
+                          Text("📚 Profesión: Arquitecta paisajista"),
+                          Text(
+                              "💬 Biografía: Entusiasta de los ecosistemas urbanos. "
+                              "Creo espacios verdes sostenibles que mezclan diseño moderno y naturaleza viva."),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
                     ElevatedButton.icon(
                       onPressed: () {
                         Navigator.push(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:leafy_app_flutter/providers/Calendar/notification_provider.dart';
 import 'package:leafy_app_flutter/widget/add_notification_form.dart';
 import 'package:leafy_app_flutter/leafy_layout.dart';
@@ -13,6 +13,8 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
+  CalendarView _calendarView = CalendarView.day;
+
   @override
   void initState() {
     super.initState();
@@ -25,8 +27,9 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('🏗️ Renderizando pantalla de calendario');
     final provider = Provider.of<NotificationProvider>(context);
-    final focusedDate = provider.selectedDate ?? DateTime.now();
+    final notifications = provider.notifications;
 
     return LeafyLayout(
       child: Align(
@@ -37,34 +40,73 @@ class _CalendarPageState extends State<CalendarPage> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                TableCalendar(
-                  firstDay: DateTime.utc(2020, 1, 1),
-                  lastDay: DateTime.utc(2030, 12, 31),
-                  focusedDay: focusedDate,
-                  selectedDayPredicate: (day) =>
-                      provider.selectedDate != null &&
-                      isSameDay(provider.selectedDate, day),
-                  onDaySelected: (selectedDay, _) {
-                    provider.getNotificationsForDate(selectedDay);
-                  },
-                  calendarStyle: const CalendarStyle(
-                    selectedDecoration: BoxDecoration(
-                      color: Colors.green,
-                      shape: BoxShape.circle,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Calendario por horas',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                     ),
-                    todayDecoration: BoxDecoration(
-                      color: Colors.lightGreen,
-                      shape: BoxShape.circle,
+                    DropdownButton<CalendarView>(
+                      value: _calendarView,
+                      onChanged: (view) {
+                        if (view != null) {
+                          setState(() {
+                            _calendarView = view;
+                          });
+                        }
+                      },
+                      items: const [
+                        DropdownMenuItem(
+                          value: CalendarView.day,
+                          child: Text('Día'),
+                        ),
+                        DropdownMenuItem(
+                          value: CalendarView.week,
+                          child: Text('Semana'),
+                        ),
+                        DropdownMenuItem(
+                          value: CalendarView.workWeek,
+                          child: Text('Semana laboral'),
+                        ),
+                        DropdownMenuItem(
+                          value: CalendarView.schedule,
+                          child: Text('Agenda'),
+                        ),
+                      ],
                     ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: Builder(
+                    builder: (_) {
+                      print('🧱 Construyendo SfCalendar');
+                      return SfCalendar(
+                        view: _calendarView,
+                        dataSource: NotificacionDataSource(
+                          _convertirNotificaciones(notifications),
+                        ),
+                        initialDisplayDate:
+                            provider.selectedDate ?? DateTime.now(),
+                        timeSlotViewSettings: const TimeSlotViewSettings(
+                          timeInterval: Duration(minutes: 30),
+                          startHour: 6,
+                          endHour: 22,
+                        ),
+                        onTap: (CalendarTapDetails details) {
+                          if (details.date != null) {
+                            Provider.of<NotificationProvider>(context,
+                                    listen: false)
+                                .getNotificationsForDate(details.date!);
+                          }
+                        },
+                      );
+                    },
                   ),
-                  availableCalendarFormats: const {
-                    CalendarFormat.month: 'Mes',
-                  },
                 ),
                 const SizedBox(height: 16),
                 const AddNotificationForm(),
-                const SizedBox(height: 16),
-                const Expanded(child: NotificationList()),
               ],
             ),
           ),
@@ -72,59 +114,48 @@ class _CalendarPageState extends State<CalendarPage> {
       ),
     );
   }
+
+  List<Appointment> _convertirNotificaciones(
+      List<Map<String, dynamic>> notifications) {
+    print('Notificaciones en calendario: $notifications');
+
+    return notifications.map((notif) {
+      try {
+        final fechaStr = notif['fecha'];
+        final tipoCuidado = notif['tipo_cuidado'] ?? 'Sin tipo';
+
+        final fecha = DateTime.parse(fechaStr);
+        print('→ $tipoCuidado a las ${fecha.hour}:${fecha.minute}');
+
+        return Appointment(
+          startTime: fecha,
+          endTime: fecha.add(const Duration(minutes: 30)),
+          subject: tipoCuidado,
+          color: _colorPorTipo(tipoCuidado),
+        );
+      } catch (e) {
+        print('Error al convertir notificación: $e');
+        return null;
+      }
+    }).whereType<Appointment>().toList();
+  }
+
+  Color _colorPorTipo(String tipo) {
+    switch (tipo.toLowerCase()) {
+      case 'riego':
+        return Colors.blue;
+      case 'poda':
+        return Colors.orange;
+      case 'fertilización':
+        return Colors.purple;
+      default:
+        return Colors.green;
+    }
+  }
 }
 
-class NotificationList extends StatelessWidget {
-  const NotificationList({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = Provider.of<NotificationProvider>(context);
-    final notifications = provider.notifications;
-
-    if (notifications.isEmpty) {
-      return const Center(
-        child: Text('No hay notificaciones para esta fecha.'),
-      );
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 4)),
-        ],
-      ),
-      padding: const EdgeInsets.all(12),
-      child: ListView.separated(
-        itemCount: notifications.length,
-        separatorBuilder: (_, __) => const Divider(),
-        itemBuilder: (_, index) {
-          final notification = notifications[index];
-          final mensaje = notification['tipo_cuidado'] ?? 'Sin mensaje';
-          final fecha = provider.selectedDate != null
-              ? '${provider.selectedDate!.day.toString().padLeft(2, '0')}/${provider.selectedDate!.month.toString().padLeft(2, '0')}'
-              : '';
-
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(child: Text(mensaje)),
-              Text(fecha, style: const TextStyle(color: Colors.grey)),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () {
-                  provider.deleteNotification(mensaje);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Notificación eliminada')),
-                  );
-                },
-              ),
-            ],
-          );
-        },
-      ),
-    );
+class NotificacionDataSource extends CalendarDataSource {
+  NotificacionDataSource(List<Appointment> source) {
+    appointments = source;
   }
 }

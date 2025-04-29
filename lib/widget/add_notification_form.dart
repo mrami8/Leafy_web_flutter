@@ -2,82 +2,97 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:leafy_app_flutter/providers/Calendar/notification_provider.dart';
 
-// Widget que muestra un formulario para añadir notificaciones de tipo de cuidado
-class AddNotificationForm extends StatelessWidget {
+class AddNotificationForm extends StatefulWidget {
   const AddNotificationForm({super.key});
 
-  // Función auxiliar para añadir una notificación llamando al provider
-  void _addNotification(BuildContext context, String tipo) async {
-    final provider = Provider.of<NotificationProvider>(context, listen: false);
-    await provider.addNotification(tipo); // Añade la notificación
+  @override
+  State<AddNotificationForm> createState() => _AddNotificationFormState();
+}
 
-    // Muestra mensaje de confirmación en pantalla
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Notificación de $tipo añadida')));
+class _AddNotificationFormState extends State<AddNotificationForm> {
+  final TextEditingController _controller = TextEditingController();
+  TimeOfDay? _selectedTime;
+
+  void _pickTime(BuildContext context) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedTime = picked;
+      });
+    }
+  }
+
+  void _addNotification(BuildContext context) {
+    final provider = Provider.of<NotificationProvider>(context, listen: false);
+    final message = _controller.text.trim();
+
+    if (message.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, ingresa un tipo de cuidado')),
+      );
+      return;
+    }
+
+    final formattedTime = _selectedTime != null
+        ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
+        : '00:00';
+
+    provider.addNotification({
+      'tipo_cuidado': message,
+      'hora': formattedTime,
+    });
+
+    _controller.clear();
+    setState(() {
+      _selectedTime = null;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Notificación añadida')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Título del formulario
         const Text(
-          'Añadir tipo de cuidado:',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          'Añadir nueva notificación',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-
-        const SizedBox(height: 12),
-
-        // Botones agrupados para añadir distintos tipos de notificación
-        Wrap(
-          spacing: 16,
-          runSpacing: 16,
-          alignment: WrapAlignment.center,
-
+        const SizedBox(height: 8),
+        TextField(
+          controller: _controller,
+          decoration: const InputDecoration(
+            hintText: 'Tipo de cuidado (Ej: Regar planta)',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
           children: [
-            // Botón para añadir tipo "Riego"
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-                textStyle: const TextStyle(fontSize: 16),
-              ),
-              onPressed: () => _addNotification(context, 'Riego'),
-              icon: const Icon(Icons.water_drop),
-              label: const Text('Riego'),
+            ElevatedButton(
+              onPressed: () => _pickTime(context),
+              child: const Text('Seleccionar hora'),
             ),
-
-            // Botón para añadir tipo "Poda"
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-                textStyle: const TextStyle(fontSize: 16),
-              ),
-              onPressed: () => _addNotification(context, 'Poda'),
-              icon: const Icon(Icons.content_cut),
-              label: const Text('Poda'),
-            ),
-
-            // Botón para añadir tipo "Fertilización"
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-                textStyle: const TextStyle(fontSize: 16),
-              ),
-              onPressed: () => _addNotification(context, 'Fertilización'),
-              icon: const Icon(Icons.local_florist),
-              label: const Text('Fertilización'),
+            const SizedBox(width: 12),
+            Text(
+              _selectedTime != null
+                  ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
+                  : 'No hay hora seleccionada',
+              style: const TextStyle(fontSize: 16),
             ),
           ],
+        ),
+        const SizedBox(height: 12),
+        ElevatedButton(
+          onPressed: () => _addNotification(context),
+          child: const Text('Añadir notificación'),
         ),
       ],
     );

@@ -14,7 +14,8 @@ dependencies:
   table_calendar: ^3.0.9
   image_picker: ^1.0.4
   uuid: ^4.0.0
-  syncfusion_flutter_calendar: ^23.1.36
+  syncfusion_flutter_calendar: 23.1.44
+
 
 dev_dependencies:
   flutter_test:

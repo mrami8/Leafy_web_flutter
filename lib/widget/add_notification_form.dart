@@ -10,50 +10,33 @@ class AddNotificationForm extends StatefulWidget {
 }
 
 class _AddNotificationFormState extends State<AddNotificationForm> {
-  final TextEditingController _controller = TextEditingController();
   TimeOfDay? _selectedTime;
 
-  void _pickTime(BuildContext context) async {
+  void _pickTimeAndAdd(BuildContext context, String tipoCuidado) async {
     final picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
 
-    if (picked != null) {
-      setState(() {
-        _selectedTime = picked;
-      });
-    }
-  }
+    if (picked == null) return;
 
-  void _addNotification(BuildContext context) {
+    final formattedTime =
+        '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+
     final provider = Provider.of<NotificationProvider>(context, listen: false);
-    final message = _controller.text.trim();
-
-    if (message.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, ingresa un tipo de cuidado')),
-      );
-      return;
-    }
-
-    final formattedTime = _selectedTime != null
-        ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
-        : '00:00';
 
     provider.addNotification({
-      'tipo_cuidado': message,
+      'tipo_cuidado': tipoCuidado,
       'hora': formattedTime,
     });
 
-    _controller.clear();
-    setState(() {
-      _selectedTime = null;
-    });
-
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Notificación añadida')),
+      SnackBar(content: Text('Notificación de "$tipoCuidado" añadida')),
     );
+
+    setState(() {
+      _selectedTime = picked;
+    });
   }
 
   @override
@@ -62,37 +45,30 @@ class _AddNotificationFormState extends State<AddNotificationForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Añadir nueva notificación',
+          'Añadir notificación rápida',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        TextField(
-          controller: _controller,
-          decoration: const InputDecoration(
-            hintText: 'Tipo de cuidado (Ej: Regar planta)',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
           children: [
-            ElevatedButton(
-              onPressed: () => _pickTime(context),
-              child: const Text('Seleccionar hora'),
+            ElevatedButton.icon(
+              onPressed: () => _pickTimeAndAdd(context, 'Riego'),
+              icon: const Icon(Icons.water_drop),
+              label: const Text('Riego'),
             ),
-            const SizedBox(width: 12),
-            Text(
-              _selectedTime != null
-                  ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
-                  : 'No hay hora seleccionada',
-              style: const TextStyle(fontSize: 16),
+            ElevatedButton.icon(
+              onPressed: () => _pickTimeAndAdd(context, 'Poda'),
+              icon: const Icon(Icons.cut),
+              label: const Text('Poda'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () => _pickTimeAndAdd(context, 'Fertilización'),
+              icon: const Icon(Icons.local_florist),
+              label: const Text('Fertilización'),
             ),
           ],
-        ),
-        const SizedBox(height: 12),
-        ElevatedButton(
-          onPressed: () => _addNotification(context),
-          child: const Text('Añadir notificación'),
         ),
       ],
     );

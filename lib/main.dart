@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'supabase_config.dart'; 
-import 'screens/LoginScreen.dart'; 
+import 'supabase_config.dart';
+import 'screens/LoginScreen.dart';
 import 'screens/RegisterScreen.dart';
 import 'screens/PlantsScreen/search_screen.dart';
 import 'screens/CalendarScreen/calendar_screen.dart';
@@ -22,9 +22,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => AuthProvider()..loadSession(),
-        ),
+        ChangeNotifierProvider(create: (_) => AuthProvider()..loadSession()),
         ChangeNotifierProvider(
           create: (_) => PlantSearchProvider(supabaseClient),
         ),
@@ -50,7 +48,7 @@ void main() async {
           '/': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/search': (context) => const SearchScreen(),
-          '/calendar': (context) => const CalendarPage(),
+          '/calendar': (context) => const CalendarScreen(),
           '/profile': (context) => const ProfileScreen(),
           '/misplantas': (context) => const PlantsScreen(),
         },

@@ -4,8 +4,21 @@ import 'package:provider/provider.dart';
 import 'package:leafy_app_flutter/providers/Plants/plant_search_provider.dart';
 import 'plantDetailScreen.dart';
 
-class SearchScreen extends StatelessWidget {
+class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
+
+  @override
+  State<SearchScreen> createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<PlantSearchProvider>(context, listen: false).searchPlants('');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +68,8 @@ class SearchScreen extends StatelessWidget {
 
                   return LayoutBuilder(
                     builder: (context, constraints) {
-                      int crossAxisCount = (constraints.maxWidth ~/ 160).clamp(2, 8);
+                      int crossAxisCount =
+                          (constraints.maxWidth ~/ 160).clamp(2, 8);
 
                       return GridView.builder(
                         padding: const EdgeInsets.all(8),
@@ -64,7 +78,7 @@ class SearchScreen extends StatelessWidget {
                           crossAxisSpacing: 12.0,
                           mainAxisSpacing: 12.0,
                           childAspectRatio: 0.90,
-                        ),  
+                        ),
                         itemCount: provider.plants.length,
                         itemBuilder: (context, index) {
                           final plant = provider.plants[index];
@@ -98,7 +112,8 @@ class SearchScreen extends StatelessWidget {
                                         plant.imagenPrincipal,
                                         fit: BoxFit.cover,
                                         filterQuality: FilterQuality.high,
-                                        errorBuilder: (context, error, stackTrace) {
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
                                           return const Icon(
                                             Icons.broken_image,
                                             size: 50,

@@ -132,4 +132,6 @@ class ProgressProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  agregarFoto(String path) {}
 }

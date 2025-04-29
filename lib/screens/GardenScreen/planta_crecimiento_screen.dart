@@ -13,11 +13,72 @@ class PlantGrowthPage extends StatefulWidget {
 }
 
 class _PlantGrowthPageState extends State<PlantGrowthPage> {
+  final ImagePicker _picker = ImagePicker();
+
   @override
   void initState() {
     super.initState();
     final provider = Provider.of<ProgressProvider>(context, listen: false);
     provider.cargarFotos(widget.jardinId);
+  }
+
+  // Método para seleccionar la imagen desde la galería o la cámara
+  Future<void> _seleccionarImagen() async {
+    try {
+      // Mostrar un diálogo para elegir entre la cámara o la galería
+      final pickedFile = await showDialog<XFile?>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Selecciona una fuente de imagen"),
+            actions: [
+              TextButton(
+                child: const Text("Cámara"),
+                onPressed: () async {
+                  Navigator.pop(context, await _picker.pickImage(source: ImageSource.camera));
+                },
+              ),
+              TextButton(
+                child: const Text("Galería"),
+                onPressed: () async {
+                  Navigator.pop(context, await _picker.pickImage(source: ImageSource.gallery));
+                },
+              ),
+            ],
+          );
+        },
+      );
+
+      // Si se seleccionó una imagen
+      if (pickedFile != null) {
+        // Verificar la ruta de la imagen seleccionada
+        print("Ruta de la imagen seleccionada: ${pickedFile.path}");
+
+        final provider = Provider.of<ProgressProvider>(context, listen: false);
+        
+        // Aquí puedes agregar la lógica para subir la imagen a tu backend o almacenarla
+        // Por ejemplo, si usas Firebase o Supabase, debes agregar el código para subir la imagen.
+        final success = await provider.agregarFoto(pickedFile.path);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                success ? 'Imagen añadida con éxito.' : 'No se pudo añadir la imagen.',
+              ),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Imprimir el error en la consola para ver qué está fallando
+      print("Error al seleccionar la imagen: $e");
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Hubo un error al seleccionar la imagen.')),
+        );
+      }
+    }
   }
 
   @override
@@ -168,9 +229,7 @@ class _PlantGrowthPageState extends State<PlantGrowthPage> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                onPressed: () {
-                  // Aquí se puede implementar la función para añadir una nueva planta
-                },
+                onPressed: _seleccionarImagen, // Llamamos al método para seleccionar imagen
                 child: const Text(
                   'Añadir Planta',
                   style: TextStyle(color: Colors.white, fontSize: 16),

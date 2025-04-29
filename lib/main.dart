@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'supabase_config.dart'; 
 import 'screens/LoginScreen.dart'; 
+import 'screens/RegisterScreen.dart';
 import 'screens/PlantsScreen/search_screen.dart';
 import 'screens/CalendarScreen/calendar_screen.dart';
 import 'screens/ProfileScreen/profile_screen.dart';
@@ -13,12 +14,9 @@ import 'providers/Profile/user_profile_provider.dart';
 import 'providers/Garden/progress_provider.dart';
 import 'screens/GardenScreen/plants_screen.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await SupabaseConfig.init();
-
   final supabaseClient = Supabase.instance.client;
 
   runApp(
@@ -50,12 +48,12 @@ void main() async {
         initialRoute: '/',
         routes: {
           '/': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
           '/search': (context) => const SearchScreen(),
           '/calendar': (context) => const CalendarPage(),
-            '/profile': (context) => const ProfileScreen(),
-          '/misplantas': (context) => const PlantsScreen(), // ✅ corregido aquí
-        },  
-
+          '/profile': (context) => const ProfileScreen(),
+          '/misplantas': (context) => const PlantsScreen(),
+        },
       ),
     ),
   );

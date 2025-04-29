@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:leafy_app_flutter/providers/Profile/user_profile_provider.dart';
 import 'package:leafy_app_flutter/providers/General/auth_provider.dart';
 
-// Pantalla para editar el perfil del usuario
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -12,32 +11,22 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final _formKey = GlobalKey<FormState>(); // Clave para validar el formulario
-
-  // Controladores para los campos de texto
+  final _formKey = GlobalKey<FormState>();
   late TextEditingController _usernameController;
   late TextEditingController _emailController;
-  late TextEditingController _passwordController;
 
   @override
   void initState() {
     super.initState();
-    // Cargar datos iniciales del perfil desde el provider
-    final userProfile = Provider.of<UserProfileProvider>(
-      context,
-      listen: false,
-    );
+    final userProfile = Provider.of<UserProfileProvider>(context, listen: false);
     _usernameController = TextEditingController(text: userProfile.username);
     _emailController = TextEditingController(text: userProfile.email);
-    _passwordController = TextEditingController();
   }
 
   @override
   void dispose() {
-    // Liberar recursos de los controladores
     _usernameController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
@@ -47,107 +36,105 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final userProfileProvider = Provider.of<UserProfileProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEAF4E4), // Fondo verde claro
-      appBar: AppBar(
-        title: Text('Editar Perfil'),
-        backgroundColor: const Color(0xFFD6E8C4), // Barra verde suave
-        actions: [
-          IconButton(
-            icon: Icon(Icons.save),
-            onPressed: () async {
-              // Validación y guardado del formulario
-              if (_formKey.currentState!.validate()) {
-                // Actualiza nombre y correo
-                await userProfileProvider.updateProfile(
-                  username: _usernameController.text,
-                  email: _emailController.text,
-                  auth: authProvider,
-                );
+      backgroundColor: const Color(0xFFEAF4E4),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Editar Perfil',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 24),
 
-                // Si se ingresó nueva contraseña, la actualiza
-                if (_passwordController.text.isNotEmpty) {
-                  await userProfileProvider.updatePassword(
-                    _passwordController.text,
-                    authProvider,
-                  );
-                }
+                    // Campo nombre
+                    TextFormField(
+                      controller: _usernameController,
+                      decoration: _buildInputDecoration('Nombre'),
+                      validator: (value) =>
+                          value == null || value.isEmpty ? 'Por favor ingresa un nombre' : null,
+                    ),
+                    const SizedBox(height: 16),
 
-                // Cierra la pantalla
-                Navigator.pop(context);
-              }
-            },
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey, // Referencia al formulario para validación
-          child: Column(
-            children: [
-              // Campo de nombre
-              TextFormField(
-                controller: _usernameController,
-                decoration: InputDecoration(
-                  labelText: 'Nombre',
-                  filled: true,
-                  fillColor: const Color(0xFFF4F4F4),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingresa un nombre';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-              // Campo de correo electrónico
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Correo electrónico',
-                  filled: true,
-                  fillColor: const Color(0xFFF4F4F4),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingresa un correo';
-                  }
-                  // Validación básica de correo
-                  if (!RegExp(
-                    r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
-                  ).hasMatch(value)) {
-                    return 'Por favor ingresa un correo válido';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-              // Campo de contraseña (opcional)
-              TextFormField(
-                controller: _passwordController,
-                obscureText: true, // Oculta el texto ingresado
-                decoration: InputDecoration(
-                  labelText: 'Contraseña (opcional)',
-                  filled: true,
-                  fillColor: const Color(0xFFF4F4F4),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
+                    // Campo email
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: _buildInputDecoration('Correo electrónico'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor ingresa un correo';
+                        }
+                        if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+                            .hasMatch(value)) {
+                          return 'Por favor ingresa un correo válido';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Botones
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.arrow_back),
+                          label: const Text("Volver"),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.black87,
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          ),
+                        ),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.save),
+                          label: const Text('Guardar cambios'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFD6E8C4),
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                          ),
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              await userProfileProvider.updateProfile(
+                                username: _usernameController.text,
+                                email: _emailController.text,
+                                auth: authProvider,
+                              );
+                              Navigator.pop(context);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: const Color(0xFFF9F9F9),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
       ),
     );
   }

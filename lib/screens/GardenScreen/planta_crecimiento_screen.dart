@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../providers/Garden/progress_provider.dart';
 
 class PlantGrowthPage extends StatefulWidget {
-  final String jardinId; // ID del jardín al que pertenece la planta
+  final String jardinId;
 
   const PlantGrowthPage({super.key, required this.jardinId});
 
@@ -16,8 +16,6 @@ class _PlantGrowthPageState extends State<PlantGrowthPage> {
   @override
   void initState() {
     super.initState();
-
-    // Al iniciar la pantalla, se cargan las fotos correspondientes al jardín
     final provider = Provider.of<ProgressProvider>(context, listen: false);
     provider.cargarFotos(widget.jardinId);
   }
@@ -27,10 +25,10 @@ class _PlantGrowthPageState extends State<PlantGrowthPage> {
     final provider = Provider.of<ProgressProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEAF4E4), // Fondo verde claro
+      backgroundColor: const Color(0xFFEAF4E4),
       body: Column(
         children: [
-          // Header con menú superior
+          // Barra superior con logo y enlaces
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             color: const Color(0xFFD7EAC8),
@@ -43,8 +41,7 @@ class _PlantGrowthPageState extends State<PlantGrowthPage> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
-
-                // Mostrar opciones si hay sesión
+                // Links de navegación
                 TextButton(
                   onPressed: () => Navigator.pushNamed(context, '/search'),
                   child: const Text("Buscar"),
@@ -72,168 +69,137 @@ class _PlantGrowthPageState extends State<PlantGrowthPage> {
 
           // Contenedor para el progreso de la planta
           Expanded(
-            child: Column(
-              children: [
-                // Barra superior con título y botón de retroceso
-                Container(
-                  height: 50,
-                  width: double.infinity,
-                  color: const Color(0xFFD7EAC8),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: const [
-                      BackButton(color: Colors.black87),
-                      SizedBox(width: 8),
-                      Text(
-                        'Progreso de la planta',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+            child: provider.fotos.isEmpty
+                ? const Center(child: Text('No hay fotos aún.'))
+                : GridView.builder(
+                    padding: const EdgeInsets.all(12),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                    ),
+                    itemCount: provider.fotos.length,
+                    itemBuilder: (context, index) {
+                      final foto = provider.fotos[index];
 
-                const SizedBox(height: 12),
-
-                // Contenedor para las fotos o mensaje si no hay ninguna
-                Expanded(
-                  child: provider.fotos.isEmpty
-                      ? const Center(child: Text('No hay fotos aún.'))
-                      : GridView.builder(
-                          padding: const EdgeInsets.all(12),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 1, // 2 columnas
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
+                      return Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              foto['imagen_url'],
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Center(child: Icon(Icons.broken_image)),
+                            ),
                           ),
-                          itemCount: provider.fotos.length,
-                          itemBuilder: (context, index) {
-                            final foto = provider.fotos[index];
-
-                            return Stack(
-                              children: [
-                                // Imagen de la planta
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Image.network(
-                                    foto['imagen_url'], // URL firmada
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            const Center(
-                                              child: Icon(Icons.broken_image),
-                                            ),
-                                  ),
-                                ),
-
-                                // Botón para eliminar la imagen, en la esquina superior derecha
-                                Positioned(
-                                  top: 6,
-                                  right: 6,
-                                  child: Container(
-                                    decoration: const BoxDecoration(
-                                      color: Colors.black54,
-                                      shape: BoxShape.circle,
+                          Positioned(
+                            top: 6,
+                            right: 6,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.white, size: 20),
+                                onPressed: () async {
+                                  final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (_) => AlertDialog(
+                                      title: const Text('¿Eliminar imagen?'),
+                                      content: const Text('Esta acción no se puede deshacer.'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context, false),
+                                          child: const Text('Cancelar'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context, true),
+                                          child: const Text('Eliminar'),
+                                        ),
+                                      ],
                                     ),
-                                    child: IconButton(
-                                      icon: const Icon(
-                                        Icons.delete,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                      onPressed: () async {
-                                        // Cuadro de confirmación antes de eliminar
-                                        final confirm = await showDialog<bool>(
-                                          context: context,
-                                          builder: (_) => AlertDialog(
-                                            title: const Text(
-                                              '¿Eliminar imagen?',
-                                            ),
-                                            content: const Text(
-                                              'Esta acción no se puede deshacer.',
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(context, false),
-                                                child: const Text('Cancelar'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(context, true),
-                                                child: const Text('Eliminar'),
-                                              ),
-                                            ],
+                                  );
+
+                                  if (confirm == true) {
+                                    final success = await provider.eliminarFoto(foto['path']);
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            success
+                                                ? 'Imagen eliminada con éxito.'
+                                                : 'No se pudo eliminar la imagen.',
                                           ),
-                                        );
-
-                                        // Si el usuario confirma, se elimina la imagen
-                                        if (confirm == true) {
-                                          final success = await provider
-                                              .eliminarFoto(foto['path']);
-                                          if (context.mounted) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  success
-                                                      ? 'Imagen eliminada con éxito.'
-                                                      : 'No se pudo eliminar la imagen.',
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                ),
-              ],
-            ),
+                                        ),
+                                      );
+                                    }
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
           ),
         ],
       ),
 
-      // Botón flotante para subir fotos
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add_a_photo),
-        onPressed: () {
-          // Muestra una hoja modal inferior para elegir cámara o galería
-          showModalBottomSheet(
-            context: context,
-            builder: (context) => Wrap(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.camera),
-                  title: const Text('Cámara'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    provider.subirFoto(ImageSource.camera);
-                  },
+      // Botones flotantes
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 80), // Ajusta el padding para el espacio inferior
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Botón "Añadir Planta"
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0), // Separación entre botones
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                  backgroundColor: const Color(0xFF4CAF50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.photo),
-                  title: const Text('Galería'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    provider.subirFoto(ImageSource.gallery);
-                  },
+                onPressed: () {
+                  // Aquí se puede implementar la función para añadir una nueva planta
+                },
+                child: const Text(
+                  'Añadir Planta',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
-              ],
+              ),
             ),
-          );
-        },
+            // Botón "Volver"
+            Padding(
+              padding: const EdgeInsets.only(top: 16.0), // Separación entre botones
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                  backgroundColor: const Color(0xFF2196F3),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                onPressed: () {
+                  // Acción para volver a la pantalla anterior
+                  Navigator.pop(context);
+                },
+                child: const Text(
+                  'Volver',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

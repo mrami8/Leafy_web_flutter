@@ -40,31 +40,32 @@ class _PlantsScreenState extends State<PlantsScreen> {
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Añadir nueva planta'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Nombre personalizado',
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Añadir nueva planta'),
+            content: TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                labelText: 'Nombre personalizado',
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final nombre = controller.text.trim();
+                  if (nombre.isNotEmpty) {
+                    Navigator.pop(context);
+                    await anadirPlantaDummy(nombre);
+                  }
+                },
+                child: const Text('Añadir'),
+              ),
+            ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final nombre = controller.text.trim();
-              if (nombre.isNotEmpty) {
-                Navigator.pop(context);
-                await anadirPlantaDummy(nombre);
-              }
-            },
-            child: const Text('Añadir'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -94,57 +95,83 @@ class _PlantsScreenState extends State<PlantsScreen> {
     return LeafyLayout(
       child: Scaffold(
         backgroundColor: const Color(0xFFEAF4E4),
-        floatingActionButton: FloatingActionButton(
-          onPressed: mostrarFormularioNuevaPlanta,
-          child: const Icon(Icons.add),
+        floatingActionButton: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 32,
+                ),
+                backgroundColor: const Color(0xFF4CAF50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              onPressed: mostrarFormularioNuevaPlanta,
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: const Text(
+                'Añadir Planta',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+          ),
         ),
         body: Padding(
           padding: const EdgeInsets.only(top: 12.0),
-          child: isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : plantas.isEmpty
+          child:
+              isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : plantas.isEmpty
                   ? const Center(
-                      child: Text('Aún no tienes plantas en tu jardín 🌿'),
-                    )
+                    child: Text('Aún no tienes plantas en tu jardín 🌿'),
+                  )
                   : GridView.builder(
-                      padding: const EdgeInsets.all(12),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                      ),
-                      itemCount: plantas.length,
-                      itemBuilder: (context, index) {
-                        final jardinItem = plantas[index];
-                        final info = jardinItem['plantas'];
-                        final nombre = jardinItem['nombre_personalizado'] ?? info['nombre'];
-                        final imagen = info['imagen_principal'];
+                    padding: const EdgeInsets.all(12),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 6,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
+                    itemCount: plantas.length,
+                    itemBuilder: (context, index) {
+                      final jardinItem = plantas[index];
+                      final info = jardinItem['plantas'];
+                      final nombre =
+                          jardinItem['nombre_personalizado'] ?? info['nombre'];
+                      final imagen = info['imagen_principal'];
 
-                        return Stack(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => PlantGrowthPage(
-                                      jardinId: jardinItem['id'],
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: imagen != null && imagen.toString().isNotEmpty
-                                          ? Image.network(
+                      return Stack(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => PlantGrowthPage(
+                                        jardinId: jardinItem['id'],
+                                      ),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child:
+                                        imagen != null &&
+                                                imagen.toString().isNotEmpty
+                                            ? Image.network(
                                               imagen,
                                               fit: BoxFit.cover,
                                               width: double.infinity,
                                             )
-                                          : Container(
+                                            : Container(
                                               color: Colors.green[100],
                                               child: const Center(
                                                 child: Icon(
@@ -153,22 +180,23 @@ class _PlantsScreenState extends State<PlantsScreen> {
                                                 ),
                                               ),
                                             ),
-                                    ),
                                   ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    nombre,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  nombre,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                ],
-                              ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
                             ),
-                            Positioned(
-                              top: 6,
-                              right: 6,
+                          ),
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
                               child: Container(
                                 decoration: const BoxDecoration(
                                   color: Colors.black45,
@@ -183,28 +211,45 @@ class _PlantsScreenState extends State<PlantsScreen> {
                                   onPressed: () async {
                                     final confirm = await showDialog<bool>(
                                       context: context,
-                                      builder: (_) => AlertDialog(
-                                        title: const Text('¿Eliminar planta?'),
-                                        content: const Text('Esta acción no se puede deshacer.'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.pop(context, false),
-                                            child: const Text('Cancelar'),
+                                      builder:
+                                          (_) => AlertDialog(
+                                            title: const Text(
+                                              '¿Eliminar planta?',
+                                            ),
+                                            content: const Text(
+                                              'Esta acción no se puede deshacer.',
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed:
+                                                    () => Navigator.pop(
+                                                      context,
+                                                      false,
+                                                    ),
+                                                child: const Text('Cancelar'),
+                                              ),
+                                              TextButton(
+                                                onPressed:
+                                                    () => Navigator.pop(
+                                                      context,
+                                                      true,
+                                                    ),
+                                                child: const Text('Eliminar'),
+                                              ),
+                                            ],
                                           ),
-                                          TextButton(
-                                            onPressed: () => Navigator.pop(context, true),
-                                            child: const Text('Eliminar'),
-                                          ),
-                                        ],
-                                      ),
                                     );
 
                                     if (confirm == true) {
                                       await eliminarJardin(jardinItem['id']);
                                       if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           const SnackBar(
-                                            content: Text('Planta eliminada del jardín.'),
+                                            content: Text(
+                                              'Planta eliminada del jardín.',
+                                            ),
                                           ),
                                         );
                                       }
@@ -213,10 +258,11 @@ class _PlantsScreenState extends State<PlantsScreen> {
                                 ),
                               ),
                             ),
-                          ],
-                        );
-                      },
-                    ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
         ),
       ),
     );

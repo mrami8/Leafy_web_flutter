@@ -9,15 +9,14 @@ class LeafyLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context); // Accedemos al estado de sesión
+    final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFEFF4DC),
       body: Column(
         children: [
-          // Header con menú superior
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Menos espacio arriba y abajo
             color: const Color(0xFFD7EAC8),
             child: Row(
               children: [
@@ -28,59 +27,87 @@ class LeafyLayout extends StatelessWidget {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
-
-                // Solo muestra opciones si hay sesión
                 if (auth.session != null) ...[
-                  
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/search'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/search'),
                     child: const Text("Buscar"),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/calendar'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/calendar'),
                     child: const Text("Calendario"),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/profile'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/profile'),
                     child: const Text("Perfil"),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/misplantas'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/misplantas'),
                     child: const Text("Mis Plantas"),
                   ),
                   const SizedBox(width: 16),
                   IconButton(
-                    onPressed: () => Navigator.pushNamed(context, '/profile'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/profile'),
                     icon: const Icon(Icons.person),
                   ),
                 ],
               ],
             ),
           ),
-
-          // Contenido dinámico
           Expanded(child: child),
-
-          // Footer fijo
           Container(
             width: double.infinity,
             color: const Color(0xFFD7EAC8),
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // Menos espacio
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Wrap(
                   spacing: 40,
                   runSpacing: 16,
                   alignment: WrapAlignment.center,
-                  children: const [
-                    _FooterColumn(title: "Leafy", items: ["Sobre nosotros", "Contacto", "FAQ"]),
-                    _FooterColumn(title: "Legal", items: ["Política de privacidad", "Términos"]),
-                    _FooterColumn(title: "Síguenos", items: ["🌿", "📸", "📘"]),
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text("Leafy",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        SizedBox(height: 8),
+                        Text("Sobre nosotros"),
+                        Text("Contacto"),
+                        Text("FAQ"),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text("Legal",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        SizedBox(height: 8),
+                        Text("Política de privacidad"),
+                        Text("Términos y condiciones"),
+                        Text("Licencia de uso"),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text("Síguenos",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        SizedBox(height: 8),
+                        Text("🌿 Instagram"),
+                        Text("📘 Facebook"),
+                      ],
+                    ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 const Text(
-                  "© 2025 Leafy",
+                  "© 2025 Leafy. Todos los derechos reservados.",
                   style: TextStyle(color: Colors.black54),
                 ),
               ],
@@ -88,25 +115,6 @@ class LeafyLayout extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _FooterColumn extends StatelessWidget {
-  final String title;
-  final List<String> items;
-
-  const _FooterColumn({required this.title, required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        ...items.map((item) => Text(item)).toList(),
-      ],
     );
   }
 }

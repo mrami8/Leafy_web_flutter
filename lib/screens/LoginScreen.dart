@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:leafy_app_flutter/leafy_layout.dart';
 import 'package:leafy_app_flutter/providers/General/auth_provider.dart';
-import 'RegisterScreen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});

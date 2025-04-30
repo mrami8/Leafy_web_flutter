@@ -70,7 +70,7 @@ Future<bool> register(
 
     if (user != null) {
       await supabase.from('usuarios').insert({
-        'id': user?.id ?? '',
+        'id': user.id ?? '',
         'email': email,
         'nombre': nombre,
         'foto_perfil': foto,

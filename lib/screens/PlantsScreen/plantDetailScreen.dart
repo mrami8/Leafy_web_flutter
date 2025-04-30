@@ -5,7 +5,7 @@ import 'package:leafy_app_flutter/models/plant.dart';
 class PlantDetailScreen extends StatelessWidget {
   final Plant plant; // Objeto planta recibido como argumento
 
-  PlantDetailScreen({super.key, required this.plant});
+  const PlantDetailScreen({super.key, required this.plant});
 
   @override
   Widget build(BuildContext context) {

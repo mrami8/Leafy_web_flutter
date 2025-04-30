@@ -35,6 +35,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final notifications = provider.notifications;
 
     return LeafyLayout(
+      showSearchBar: true,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

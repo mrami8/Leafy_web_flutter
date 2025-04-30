@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:leafy_app_flutter/providers/Plants/plant_search_provider.dart';
 import 'plantDetailScreen.dart';
 
-/// Pantalla de búsqueda de plantas
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -16,8 +15,6 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
-
-    // Al iniciar, se realiza una búsqueda vacía para mostrar todas las plantas
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<PlantSearchProvider>(context, listen: false).searchPlants('');
     });
@@ -26,11 +23,12 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return LeafyLayout(
+      showSearchBar: false,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Barra de búsqueda de texto
+            // Barra de búsqueda
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -38,21 +36,20 @@ class _SearchScreenState extends State<SearchScreen> {
                 boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
               ),
               child: TextField(
-                // Cada vez que cambia el texto, se actualiza la búsqueda
                 onChanged: (query) {
                   Provider.of<PlantSearchProvider>(context, listen: false)
                       .searchPlants(query);
                 },
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search), // Icono de lupa
+                  prefixIcon: const Icon(Icons.search),
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.close), // Botón para limpiar
+                    icon: const Icon(Icons.close),
                     onPressed: () {
                       Provider.of<PlantSearchProvider>(context, listen: false)
                           .searchPlants('');
                     },
                   ),
-                  hintText: 'Buscar plantas', // Texto de ayuda
+                  hintText: 'Buscar plantas',
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 14),
                 ),
@@ -60,24 +57,21 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Contenedor de resultados de búsqueda
+            // Resultados
             Expanded(
               child: Consumer<PlantSearchProvider>(
                 builder: (context, provider, _) {
-                  // Si no hay resultados
                   if (provider.plants.isEmpty) {
                     return const Center(
                       child: Text('No se encontraron plantas.'),
                     );
                   }
 
-                  // Calcula el número de columnas en base al ancho
                   return LayoutBuilder(
                     builder: (context, constraints) {
                       int crossAxisCount =
                           (constraints.maxWidth ~/ 160).clamp(2, 8);
 
-                      // Muestra los resultados en una cuadrícula
                       return GridView.builder(
                         padding: const EdgeInsets.all(8),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -89,11 +83,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         itemCount: provider.plants.length,
                         itemBuilder: (context, index) {
                           final plant = provider.plants[index];
-
-                          // Cada tarjeta representa una planta
                           return GestureDetector(
                             onTap: () {
-                              // Al tocar, navega a la pantalla de detalles
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -111,7 +102,6 @@ class _SearchScreenState extends State<SearchScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  // Imagen de la planta
                                   ClipRRect(
                                     borderRadius: const BorderRadius.vertical(
                                       top: Radius.circular(12),
@@ -134,7 +124,6 @@ class _SearchScreenState extends State<SearchScreen> {
                                       ),
                                     ),
                                   ),
-                                  // Nombre común y nombre científico
                                   Padding(
                                     padding: const EdgeInsets.all(6.0),
                                     child: Column(

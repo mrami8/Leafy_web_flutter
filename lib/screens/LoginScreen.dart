@@ -12,6 +12,7 @@ class LoginScreen extends StatelessWidget {
     final passwordController = TextEditingController();
 
     return LeafyLayout(
+      showSearchBar: false,
       child: SizedBox.expand(
         child: Stack(
           fit: StackFit.expand,

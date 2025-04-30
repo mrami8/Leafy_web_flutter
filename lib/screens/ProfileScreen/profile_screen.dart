@@ -17,6 +17,7 @@ class ProfileScreen extends StatelessWidget {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return LeafyLayout(
+      showSearchBar: true,
       // Mostrar loading mientras se carga la información del perfil
       child: userProfileProvider.isLoading
           ? const Center(child: CircularProgressIndicator())

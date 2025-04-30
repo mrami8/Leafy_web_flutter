@@ -100,6 +100,7 @@ class _PlantsScreenState extends State<PlantsScreen> {
   @override
   Widget build(BuildContext context) {
     return LeafyLayout(
+      showSearchBar: true,
       child: Scaffold(
         backgroundColor: const Color(0xFFEAF4E4),
         // Botón flotante centrado en la parte inferior para añadir una planta

@@ -133,5 +133,42 @@ class ProgressProvider extends ChangeNotifier {
     }
   }
 
-  agregarFoto(String path) {}
+  Future<bool> agregarFoto(String pathLocal) async {
+    try {
+      if (jardinId == null) {
+        debugPrint('Error: jardinId es null');
+        return false;
+      }
+
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        debugPrint('Usuario no autenticado');
+        return false;
+      }
+
+      final uuid = const Uuid().v4();
+      final path = '${user.id}/$jardinId/$uuid.jpg';
+      final storage = Supabase.instance.client.storage.from('progresoplantas');
+
+      if (kIsWeb) {
+        final bytes = await XFile(pathLocal).readAsBytes();
+        await storage.uploadBinary(path, bytes);
+      } else {
+        final file = File(pathLocal);
+        await storage.upload(path, file);
+      }
+
+      await Supabase.instance.client.from('imagenes_progreso').insert({
+        'id_jardin': jardinId,
+        'imagen_url': path,
+        'fecha_subida': DateTime.now().toIso8601String(),
+      });
+
+      await cargarFotos(jardinId!);
+      return true;
+    } catch (e) {
+      debugPrint('Error en agregarFoto: $e');
+      return false;
+    }
+  }
 }

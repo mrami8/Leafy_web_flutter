@@ -1,3 +1,4 @@
+// Importaciones necesarias
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -5,6 +6,7 @@ import 'package:leafy_app_flutter/providers/Calendar/notification_provider.dart'
 import 'package:leafy_app_flutter/widget/add_notification_form.dart';
 import 'package:leafy_app_flutter/leafy_layout.dart';
 
+// Widget con estado para la pantalla de calendario
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
 
@@ -64,14 +66,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            // Formulario para añadir una notificación
             const AddNotificationForm(),
             const SizedBox(height: 16),
+            // Lista de notificaciones para el día seleccionado
             Expanded(
               child:
                   notifications.isEmpty
                       ? const Center(
                         child: Text('No hay notificaciones para esta fecha.'),
                       )
+                      // Si hay notificaciones, se muestran en una lista
                       : ListView.builder(
                         itemCount: notifications.length,
                         itemBuilder: (context, index) {

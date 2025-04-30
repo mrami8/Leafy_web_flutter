@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:leafy_app_flutter/providers/Profile/user_profile_provider.dart';
 import 'package:leafy_app_flutter/providers/General/auth_provider.dart';
 
+/// Pantalla para editar el perfil del usuario
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -18,6 +19,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Inicializa los controladores con los datos actuales del perfil
     final userProfile = Provider.of<UserProfileProvider>(context, listen: false);
     _usernameController = TextEditingController(text: userProfile.username);
     _emailController = TextEditingController(text: userProfile.email);
@@ -25,6 +28,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   void dispose() {
+    // Limpieza de los controladores al destruir la pantalla
     _usernameController.dispose();
     _emailController.dispose();
     super.dispose();
@@ -51,13 +55,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Título
                     const Text(
                       'Editar Perfil',
                       style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 24),
 
-                    // Campo nombre
+                    // Campo de nombre
                     TextFormField(
                       controller: _usernameController,
                       decoration: _buildInputDecoration('Nombre'),
@@ -66,7 +71,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Campo email
+                    // Campo de correo
                     TextFormField(
                       controller: _emailController,
                       decoration: _buildInputDecoration('Correo electrónico'),
@@ -83,10 +88,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                     const SizedBox(height: 32),
 
-                    // Botones
+                    // Botones de acción
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        // Botón para volver atrás
                         OutlinedButton.icon(
                           onPressed: () => Navigator.pop(context),
                           icon: const Icon(Icons.arrow_back),
@@ -96,6 +102,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                           ),
                         ),
+
+                        // Botón para guardar los cambios
                         ElevatedButton.icon(
                           icon: const Icon(Icons.save),
                           label: const Text('Guardar cambios'),
@@ -106,12 +114,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           ),
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
+                              // Llama al método para actualizar el perfil
                               await userProfileProvider.updateProfile(
                                 username: _usernameController.text,
                                 email: _emailController.text,
                                 auth: authProvider,
                               );
-                              Navigator.pop(context);
+                              Navigator.pop(context); // Vuelve atrás después de guardar
                             }
                           },
                         ),
@@ -127,6 +136,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  /// Función reutilizable para estilos de campos de texto
   InputDecoration _buildInputDecoration(String label) {
     return InputDecoration(
       labelText: label,

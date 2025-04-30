@@ -4,17 +4,20 @@ import 'package:leafy_app_flutter/providers/Profile/user_profile_provider.dart';
 import 'package:leafy_app_flutter/providers/General/auth_provider.dart';
 import 'edit_profile_screen.dart';
 import 'package:leafy_app_flutter/screens/LoginScreen.dart';
-import 'package:leafy_app_flutter/leafy_layout.dart'; // Asegúrate de importar LeafyLayout
+import 'package:leafy_app_flutter/leafy_layout.dart'; // Layout general para mantener la estética web y coherencia visual
 
+// Pantalla principal de perfil del usuario
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Acceso a los proveedores necesarios
     final userProfileProvider = Provider.of<UserProfileProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
 
     return LeafyLayout(
+      // Mostrar loading mientras se carga la información del perfil
       child: userProfileProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -22,8 +25,10 @@ class ProfileScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
+                    // Cabecera con imagen de fondo + avatar grande + nombre/email
                     Stack(
                       children: [
+                        // Imagen de fondo de perfil
                         Container(
                           height: 250,
                           width: double.infinity,
@@ -37,6 +42,7 @@ class ProfileScreen extends StatelessWidget {
                             ),
                           ),
                         ),
+                        // Capa semitransparente encima del fondo
                         Container(
                           height: 250,
                           width: double.infinity,
@@ -45,11 +51,13 @@ class ProfileScreen extends StatelessWidget {
                             color: Colors.black.withOpacity(0.2),
                           ),
                         ),
+                        // Avatar grande + nombre + correo
                         Positioned.fill(
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               const SizedBox(width: 24),
+                              // Avatar del usuario (con imagen o ícono por defecto)
                               CircleAvatar(
                                 radius: 90,
                                 backgroundImage:
@@ -64,6 +72,7 @@ class ProfileScreen extends StatelessWidget {
                                     : null,
                               ),
                               const SizedBox(width: 40),
+                              // Nombre y correo
                               Expanded(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -100,7 +109,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 30),
 
-                    // Sección de información personal falsa
+                    // Sección de información personal ficticia (puede ser editable en el futuro)
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
@@ -134,6 +143,8 @@ class ProfileScreen extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 30),
+
+                    // Botón para editar perfil
                     ElevatedButton.icon(
                       onPressed: () {
                         Navigator.push(
@@ -151,13 +162,16 @@ class ProfileScreen extends StatelessWidget {
                             horizontal: 24, vertical: 12),
                       ),
                     ),
+
                     const SizedBox(height: 10),
+
+                    // Botón para cerrar sesión
                     ElevatedButton.icon(
                       onPressed: () async {
-                        await authProvider.logout();
+                        await authProvider.logout(); // Limpia datos y tokens
                         Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(builder: (_) => LoginScreen()),
-                          (route) => false,
+                          (route) => false, // Elimina historial para evitar volver atrás
                         );
                       },
                       icon: const Icon(Icons.logout),

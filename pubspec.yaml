@@ -16,6 +16,7 @@ dependencies:
   uuid: ^4.0.0
   syncfusion_flutter_calendar: 23.1.44
   url_launcher: ^6.3.1
+  path: ^1.8.3
 
 
 dev_dependencies:

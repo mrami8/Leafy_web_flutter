@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
+
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:leafy_app_flutter/screens/GardenScreen/planta_crecimiento_screen.dart';
-import 'package:leafy_app_flutter/leafy_layout.dart'; // Asegúrate que esta ruta es la correcta
+import 'package:leafy_app_flutter/leafy_layout.dart';
 
-// Pantalla principal de plantas del jardín
 class PlantsScreen extends StatefulWidget {
   const PlantsScreen({super.key});
 
@@ -12,34 +15,30 @@ class PlantsScreen extends StatefulWidget {
 }
 
 class _PlantsScreenState extends State<PlantsScreen> {
-  // Lista que almacenará los datos de las plantas del jardín
   List<Map<String, dynamic>> plantas = [];
-  // Variable para mostrar un indicador de carga mientras se obtienen los datos
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    cargarPlantas(); // Se cargan las plantas al iniciar la pantalla
+    cargarPlantas();
   }
 
-  // Función que obtiene las plantas del jardín desde Supabase
   Future<void> cargarPlantas() async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return;
 
     final result = await Supabase.instance.client
         .from('jardin')
-        .select('id, nombre_personalizado, plantas (nombre, imagen_principal)')
-        .eq('id_usuario', user.id); // Se filtran las plantas por el usuario actual
+        .select('id, nombre_personalizado, imagen_personalizada, plantas (nombre, imagen_principal)')
+        .eq('id_usuario', user.id);
 
     setState(() {
       plantas = (result as List).cast<Map<String, dynamic>>();
-      isLoading = false; // Se desactiva el indicador de carga
+      isLoading = false;
     });
   }
 
-  // Muestra un diálogo para ingresar una nueva planta
   void mostrarFormularioNuevaPlanta() {
     final controller = TextEditingController();
 
@@ -49,9 +48,7 @@ class _PlantsScreenState extends State<PlantsScreen> {
         title: const Text('Añadir nueva planta'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Nombre personalizado',
-          ),
+          decoration: const InputDecoration(labelText: 'Nombre personalizado'),
         ),
         actions: [
           TextButton(
@@ -63,7 +60,7 @@ class _PlantsScreenState extends State<PlantsScreen> {
               final nombre = controller.text.trim();
               if (nombre.isNotEmpty) {
                 Navigator.pop(context);
-                await anadirPlantaDummy(nombre); // Se añade la planta
+                await anadirPlantaDummy(nombre);
               }
             },
             child: const Text('Añadir'),
@@ -73,28 +70,75 @@ class _PlantsScreenState extends State<PlantsScreen> {
     );
   }
 
-  // Inserta una planta dummy (plantilla) en la base de datos para pruebas
   Future<void> anadirPlantaDummy(String nombrePersonalizado) async {
     final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) return;
+    if (user == null) {
+      print('❌ Usuario no logueado');
+      return;
+    }
 
-    // ID de una planta dummy preexistente
     const dummyPlantaId = 'fdd93415-6e05-412d-b32c-cd778d990896';
 
-    await Supabase.instance.client.from('jardin').insert({
+    final nuevaPlanta = {
       'id_usuario': user.id,
       'id_planta': dummyPlantaId,
       'nombre_personalizado': nombrePersonalizado,
       'fecha_adquisicion': DateTime.now().toIso8601String(),
-    });
+    };
 
-    await cargarPlantas(); // Refresca la lista tras añadir
+    try {
+      final response = await Supabase.instance.client
+          .from('jardin')
+          .insert(nuevaPlanta)
+          .select();
+
+      print('✅ Planta insertada: $response');
+      await cargarPlantas();
+    } catch (e) {
+      print('❌ Error al insertar planta: $e');
+    }
   }
 
-  // Elimina una planta del jardín por ID
   Future<void> eliminarJardin(String jardinId) async {
     await Supabase.instance.client.from('jardin').delete().eq('id', jardinId);
-    await cargarPlantas(); // Refresca la lista tras eliminar
+    await cargarPlantas();
+  }
+
+  Future<void> actualizarImagenPlanta(String jardinId) async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked == null) return;
+
+    try {
+      final bytes = await picked.readAsBytes();
+      final fileName = p.basename(picked.name);
+      final userId = Supabase.instance.client.auth.currentUser!.id;
+      final storagePath = 'plantas/$userId/$fileName';
+
+      await Supabase.instance.client.storage.from('plantas').uploadBinary(
+        storagePath,
+        bytes,
+        fileOptions: FileOptions(
+          upsert: true,
+          contentType: 'image/png',
+          metadata: {
+            'owner': userId,
+          },
+        ),
+      );
+
+      final publicUrl = Supabase.instance.client.storage.from('plantas').getPublicUrl(storagePath);
+      print('🟢 Imagen subida correctamente: $publicUrl');
+
+      await Supabase.instance.client
+          .from('jardin')
+          .update({'imagen_personalizada': publicUrl})
+          .eq('id', jardinId);
+
+      await cargarPlantas();
+    } catch (e) {
+      print('❌ Error subiendo imagen: $e');
+    }
   }
 
   @override
@@ -103,17 +147,13 @@ class _PlantsScreenState extends State<PlantsScreen> {
       showSearchBar: true,
       child: Scaffold(
         backgroundColor: const Color(0xFFEAF4E4),
-        // Botón flotante centrado en la parte inferior para añadir una planta
         floatingActionButton: Align(
           alignment: Alignment.bottomCenter,
           child: Padding(
             padding: const EdgeInsets.only(bottom: 16.0),
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 32,
-                ),
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                 backgroundColor: const Color(0xFF4CAF50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
@@ -131,14 +171,9 @@ class _PlantsScreenState extends State<PlantsScreen> {
         body: Padding(
           padding: const EdgeInsets.only(top: 12.0),
           child: isLoading
-              // Muestra indicador de carga mientras se obtienen los datos
               ? const Center(child: CircularProgressIndicator())
-              // Si no hay plantas, muestra un mensaje
               : plantas.isEmpty
-                  ? const Center(
-                      child: Text('Aún no tienes plantas en tu jardín 🌿'),
-                    )
-                  // Muestra las plantas en una cuadrícula de 6 columnas
+                  ? const Center(child: Text('Aún no tienes plantas en tu jardín 🌿'))
                   : GridView.builder(
                       padding: const EdgeInsets.all(12),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -151,11 +186,10 @@ class _PlantsScreenState extends State<PlantsScreen> {
                         final jardinItem = plantas[index];
                         final info = jardinItem['plantas'];
                         final nombre = jardinItem['nombre_personalizado'] ?? info['nombre'];
-                        final imagen = info['imagen_principal'];
+                        final imagen = jardinItem['imagen_personalizada'] ?? info['imagen_principal'];
 
                         return Stack(
                           children: [
-                            // Widget principal de cada planta (clicable)
                             GestureDetector(
                               onTap: () {
                                 Navigator.push(
@@ -173,87 +207,87 @@ class _PlantsScreenState extends State<PlantsScreen> {
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(10),
                                       child: imagen != null && imagen.toString().isNotEmpty
-                                          // Muestra imagen si está disponible
                                           ? Image.network(
-                                              imagen,
+                                              '$imagen?${DateTime.now().millisecondsSinceEpoch}',
                                               fit: BoxFit.cover,
                                               width: double.infinity,
                                             )
-                                          // Si no hay imagen, muestra un ícono decorativo
                                           : Container(
                                               color: Colors.green[100],
                                               child: const Center(
-                                                child: Icon(
-                                                  Icons.local_florist,
-                                                  size: 40,
-                                                ),
+                                                child: Icon(Icons.local_florist, size: 40),
                                               ),
                                             ),
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  // Muestra el nombre de la planta
                                   Text(
                                     nombre,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                     textAlign: TextAlign.center,
                                   ),
                                 ],
                               ),
                             ),
-                            // Botón de eliminar en la esquina superior derecha
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    color: Colors.black45,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: IconButton(
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                    onPressed: () async {
-                                      // Confirmación antes de eliminar
-                                      final confirm = await showDialog<bool>(
-                                        context: context,
-                                        builder: (_) => AlertDialog(
-                                          title: const Text('¿Eliminar planta?'),
-                                          content: const Text(
-                                            'Esta acción no se puede deshacer.',
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.black45,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.white, size: 20),
+                                  onPressed: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        title: const Text('¿Eliminar planta?'),
+                                        content: const Text('Esta acción no se puede deshacer.'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, false),
+                                            child: const Text('Cancelar'),
                                           ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(context, false),
-                                              child: const Text('Cancelar'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(context, true),
-                                              child: const Text('Eliminar'),
-                                            ),
-                                          ],
-                                        ),
-                                      );
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, true),
+                                            child: const Text('Eliminar'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
 
-                                      // Si el usuario confirma, se elimina la planta
-                                      if (confirm == true) {
-                                        await eliminarJardin(jardinItem['id']);
-                                        if (context.mounted) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(
-                                              content: Text('Planta eliminada del jardín.'),
-                                            ),
-                                          );
-                                        }
+                                    if (confirm == true) {
+                                      await eliminarJardin(jardinItem['id']);
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Planta eliminada del jardín.')),
+                                        );
                                       }
-                                    },
-                                  ),
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 8,
+                              left: 8,
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.black45,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.white, size: 20),
+                                  onPressed: () async {
+                                    await actualizarImagenPlanta(jardinItem['id']);
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Imagen actualizada')),
+                                      );
+                                    }
+                                  },
                                 ),
                               ),
                             ),

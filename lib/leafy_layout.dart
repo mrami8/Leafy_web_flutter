@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:leafy_app_flutter/providers/General/auth_provider.dart';
 import 'package:leafy_app_flutter/providers/Plants/plant_search_provider.dart';
 import 'package:leafy_app_flutter/screens/PlantsScreen/plantDetailScreen.dart';
@@ -24,7 +25,10 @@ class _LeafyLayoutState extends State<LeafyLayout> {
   bool _isSearching = false;
 
   void _onSearchChanged(String query) {
-    Provider.of<PlantSearchProvider>(context, listen: false).searchPlants(query);
+    Provider.of<PlantSearchProvider>(
+      context,
+      listen: false,
+    ).searchPlants(query);
   }
 
   void _clearSearch() {
@@ -33,6 +37,15 @@ class _LeafyLayoutState extends State<LeafyLayout> {
     setState(() {
       _isSearching = false;
     });
+  }
+
+  Future<void> abrirUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'No se pudo abrir $url';
+    }
   }
 
   @override
@@ -44,7 +57,7 @@ class _LeafyLayoutState extends State<LeafyLayout> {
       backgroundColor: const Color(0xFFEFF4DC),
       body: Column(
         children: [
-          // HEADER CON LOGO, MENÚ Y BÚSQUEDA
+          // HEADER
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             color: const Color(0xFFD7EAC8),
@@ -57,36 +70,42 @@ class _LeafyLayoutState extends State<LeafyLayout> {
                     const SizedBox(width: 8),
                     const Text(
                       "Leafy",
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const Spacer(),
                     if (auth.session != null) ...[
                       TextButton(
-                        onPressed: () => Navigator.pushNamed(context, '/calendar'),
+                        onPressed:
+                            () => Navigator.pushNamed(context, '/calendar'),
                         child: const Text("Calendario"),
                       ),
                       TextButton(
-                        onPressed: () => Navigator.pushNamed(context, '/profile'),
+                        onPressed:
+                            () => Navigator.pushNamed(context, '/profile'),
                         child: const Text("Perfil"),
                       ),
                       TextButton(
-                        onPressed: () => Navigator.pushNamed(context, '/misplantas'),
+                        onPressed:
+                            () => Navigator.pushNamed(context, '/misplantas'),
                         child: const Text("Mis Plantas"),
                       ),
                       TextButton(
-                        onPressed: () => Navigator.pushNamed(context, '/search'),
+                        onPressed:
+                            () => Navigator.pushNamed(context, '/search'),
                         child: const Text("Buscar Plantas"),
                       ),
                       const SizedBox(width: 16),
                       IconButton(
-                        onPressed: () => Navigator.pushNamed(context, '/profile'),
+                        onPressed:
+                            () => Navigator.pushNamed(context, '/profile'),
                         icon: const Icon(Icons.person),
                       ),
                     ],
                   ],
                 ),
-
-                // BARRA DE BÚSQUEDA
                 if (widget.showSearchBar)
                   Padding(
                     padding: const EdgeInsets.only(top: 12),
@@ -94,7 +113,9 @@ class _LeafyLayoutState extends State<LeafyLayout> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                        boxShadow: [
+                          BoxShadow(color: Colors.black12, blurRadius: 4),
+                        ],
                       ),
                       child: TextField(
                         controller: _searchController,
@@ -113,7 +134,9 @@ class _LeafyLayoutState extends State<LeafyLayout> {
                           ),
                           hintText: 'Buscar plantas...',
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                          ),
                         ),
                       ),
                     ),
@@ -122,15 +145,14 @@ class _LeafyLayoutState extends State<LeafyLayout> {
             ),
           ),
 
-          // CONTENIDO PRINCIPAL + RESULTADOS FLOTANTES
+          // CONTENIDO PRINCIPAL
           Expanded(
             child: Stack(
               children: [
                 widget.child,
-
                 if (_isSearching && plantSearchProvider.plants.isNotEmpty)
                   Positioned(
-                    top: 0, // Altura para que aparezca debajo del header + barra de búsqueda
+                    top: 0,
                     left: 20,
                     right: 20,
                     child: Material(
@@ -164,7 +186,9 @@ class _LeafyLayoutState extends State<LeafyLayout> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => PlantDetailScreen(plant: plant),
+                                    builder:
+                                        (context) =>
+                                            PlantDetailScreen(plant: plant),
                                   ),
                                 );
                               },
@@ -178,7 +202,7 @@ class _LeafyLayoutState extends State<LeafyLayout> {
             ),
           ),
 
-          // FOOTER
+          // FOOTER CON ENLACES EXTERNOS
           Container(
             width: double.infinity,
             color: const Color(0xFFD7EAC8),
@@ -194,7 +218,10 @@ class _LeafyLayoutState extends State<LeafyLayout> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Text("Leafy", style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          "Leafy",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         SizedBox(height: 8),
                         Text("Sobre nosotros"),
                         Text("Contacto"),
@@ -203,21 +230,53 @@ class _LeafyLayoutState extends State<LeafyLayout> {
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text("Legal", style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(height: 8),
-                        Text("Política de privacidad"),
-                        Text("Términos y condiciones"),
-                        Text("Licencia de uso"),
+                      children: [
+                        const Text(
+                          "Legal",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed:
+                              () => abrirUrl(
+                                'https://drive.google.com/drive/folders/1r1TO_sg0ZQcqDnfUlZTX8QJiVS4Mf53m',
+                              ),
+                          child: const Text("Política de privacidad"),
+                        ),
+                        TextButton(
+                          onPressed:
+                              () => abrirUrl(
+                                'https://drive.google.com/drive/folders/1r1TO_sg0ZQcqDnfUlZTX8QJiVS4Mf53m',
+                              ),
+                          child: const Text("Términos y condiciones"),
+                        ),
+                        TextButton(
+                          onPressed:
+                              () => abrirUrl(
+                                'https://drive.google.com/drive/folders/1r1TO_sg0ZQcqDnfUlZTX8QJiVS4Mf53m',
+                              ),
+                          child: const Text("Licencia de uso"),
+                        ),
                       ],
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text("Síguenos", style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(height: 8),
-                        Text("🌿 Instagram"),
-                        Text("📘 Facebook"),
+                      children: [
+                        const Text(
+                          "Síguenos",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed:
+                              () => abrirUrl('https://www.facebook.com/Cristiano/?locale=ca_ES'),
+                          child: const Text("🌿 Instagram"),
+                        ),
+                        TextButton(
+                          onPressed:
+                              () => abrirUrl('https://www.instagram.com/leomessi/'),
+                          child: const Text("📘 Facebook"),
+                        ),
                       ],
                     ),
                   ],

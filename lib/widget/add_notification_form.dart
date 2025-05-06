@@ -25,7 +25,7 @@ class _AddNotificationFormState extends State<AddNotificationForm> {
 
     final provider = Provider.of<NotificationProvider>(context, listen: false);
 
-    provider.addNotification({
+    await provider.addNotification({
       'tipo_cuidado': tipoCuidado,
       'hora': formattedTime,
     });
@@ -46,7 +46,6 @@ class _AddNotificationFormState extends State<AddNotificationForm> {
       children: [
         const Text(
           'Añadir notificación rápida',
-          textAlign: TextAlign.center,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),

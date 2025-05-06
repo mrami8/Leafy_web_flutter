@@ -1,4 +1,3 @@
-// Importaciones necesarias
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -6,7 +5,6 @@ import 'package:leafy_app_flutter/providers/Calendar/notification_provider.dart'
 import 'package:leafy_app_flutter/widget/add_notification_form.dart';
 import 'package:leafy_app_flutter/leafy_layout.dart';
 
-// Widget con estado para la pantalla de calendario
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
 
@@ -22,10 +20,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<NotificationProvider>(
-        context,
-        listen: false,
-      ).getNotificationsForDate(DateTime.now());
+      Provider.of<NotificationProvider>(context, listen: false)
+          .getNotificationsForDate(DateTime.now());
     });
   }
 
@@ -50,10 +46,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   _selectedDay = selectedDay;
                   _focusedDay = focusedDay;
                 });
-                Provider.of<NotificationProvider>(
-                  context,
-                  listen: false,
-                ).getNotificationsForDate(selectedDay);
+                Provider.of<NotificationProvider>(context, listen: false)
+                    .getNotificationsForDate(selectedDay);
               },
               calendarStyle: const CalendarStyle(
                 selectedDecoration: BoxDecoration(
@@ -65,43 +59,37 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   shape: BoxShape.circle,
                 ),
               ),
+              calendarFormat: CalendarFormat.month,
             ),
             const SizedBox(height: 16),
-            // Formulario para añadir una notificación
             const AddNotificationForm(),
             const SizedBox(height: 16),
-            // Lista de notificaciones para el día seleccionado
             Expanded(
-              child:
-                  notifications.isEmpty
-                      ? const Center(
-                        child: Text('No hay notificaciones para esta fecha.'),
-                      )
-                      // Si hay notificaciones, se muestran en una lista
-                      : ListView.builder(
-                        itemCount: notifications.length,
-                        itemBuilder: (context, index) {
-                          final notif = notifications[index];
-                          final tipoCuidado =
-                              notif['tipo_cuidado'] ?? 'Sin tipo';
-                          final fecha = DateTime.parse(notif['fecha']);
-                          final horaFormateada =
-                              '${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}';
+              child: notifications.isEmpty
+                  ? const Center(child: Text('No hay notificaciones para esta fecha.'))
+                  : ListView.builder(
+                      itemCount: notifications.length,
+                      itemBuilder: (context, index) {
+                        final notif = notifications[index];
+                        final tipoCuidado = notif['tipo_cuidado'] ?? 'Sin tipo';
+                        final fecha = DateTime.parse(notif['fecha']);
+                        final horaFormateada =
+                            '${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}';
 
-                          return ListTile(
-                            title: Text('$horaFormateada - $tipoCuidado'),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                Provider.of<NotificationProvider>(
-                                  context,
-                                  listen: false,
-                                ).deleteNotification(tipoCuidado);
-                              },
-                            ),
-                          );
-                        },
-                      ),
+                        return ListTile(
+                          title: Text('$horaFormateada - $tipoCuidado'),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              Provider.of<NotificationProvider>(
+                                context,
+                                listen: false,
+                              ).deleteNotification(tipoCuidado);
+                            },
+                          ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),

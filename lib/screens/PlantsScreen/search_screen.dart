@@ -94,6 +94,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               );
                             },
                             child: Card(
+                              color: const Color.fromARGB(255, 243, 247, 240), // Fondo verde Leafy
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -108,7 +109,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                     ),
                                     child: Container(
                                       height: 100,
-                                      color: Colors.grey[200],
+                                      color: const Color.fromARGB(255, 236, 250, 233),
                                       child: Image.network(
                                         plant.imagenPrincipal,
                                         fit: BoxFit.cover,

@@ -108,26 +108,25 @@ class _PlantsScreenState extends State<PlantsScreen> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null) return;
-
     try {
       final bytes = await picked.readAsBytes();
-      final fileName = p.basename(picked.name);
+      final fileName = p.basename(picked.name).replaceAll(' ', '_').toLowerCase();
       final userId = Supabase.instance.client.auth.currentUser!.id;
-      final storagePath = 'plantas/$userId/$fileName';
+      final storagePath = 'plantastest/$userId/$fileName';  // Cambio aquí: nuevo nombre del bucket
 
-      await Supabase.instance.client.storage.from('plantas').uploadBinary(
+      print('📦 PATH A SUBIR: $storagePath');
+      print('👤 UID: $userId');
+
+      await Supabase.instance.client.storage.from('plantastest').uploadBinary(  // Cambio aquí: nuevo nombre del bucket
         storagePath,
         bytes,
         fileOptions: FileOptions(
           upsert: true,
           contentType: 'image/png',
-          metadata: {
-            'owner': userId,
-          },
         ),
       );
 
-      final publicUrl = Supabase.instance.client.storage.from('plantas').getPublicUrl(storagePath);
+      final publicUrl = Supabase.instance.client.storage.from('plantastest').getPublicUrl(storagePath);  // Cambio aquí: nuevo nombre del bucket
       print('🟢 Imagen subida correctamente: $publicUrl');
 
       await Supabase.instance.client

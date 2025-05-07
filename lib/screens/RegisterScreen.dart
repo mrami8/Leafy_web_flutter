@@ -1,26 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:leafy_app_flutter/leafy_layout.dart';
+import 'package:leafy_app_flutter/leafy_layout.dart'; // Layout base con estructura y estilos de Leafy
 
+// Pantalla de registro de usuario
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Controladores para capturar el texto de los campos
     final nameController = TextEditingController();
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
 
     return LeafyLayout(
-      showSearchBar: false,
+      showSearchBar: false, // No mostramos barra de búsqueda en esta pantalla
       child: SizedBox.expand(
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(
-              'assets/FondoPantalla.jpg',
-              fit: BoxFit.cover,
-            ),
+            // Imagen de fondo
+            Image.asset('assets/FondoPantalla.jpg', fit: BoxFit.cover),
+            // Capa de oscurecimiento semitransparente
             Container(color: Colors.black.withOpacity(0.2)),
+
+            // Contenido centrado
             Align(
               alignment: Alignment.center,
               child: ConstrainedBox(
@@ -28,7 +31,9 @@ class RegisterScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withOpacity(
+                      0.9,
+                    ), // Fondo blanco semitransparente
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -41,7 +46,12 @@ class RegisterScreen extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.person_add, size: 48, color: Color(0xFF4CAF50)),
+                      // Icono superior y título
+                      const Icon(
+                        Icons.person_add,
+                        size: 48,
+                        color: Color(0xFF4CAF50),
+                      ),
                       const SizedBox(height: 16),
                       const Text(
                         "Crear cuenta",
@@ -52,6 +62,8 @@ class RegisterScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 24),
+
+                      // Campo de nombre completo
                       TextField(
                         controller: nameController,
                         decoration: const InputDecoration(
@@ -60,6 +72,8 @@ class RegisterScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
+
+                      // Campo de correo electrónico
                       TextField(
                         controller: emailController,
                         decoration: const InputDecoration(
@@ -68,15 +82,19 @@ class RegisterScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
+
+                      // Campo de contraseña
                       TextField(
                         controller: passwordController,
-                        obscureText: true,
+                        obscureText: true, // Oculta el texto para seguridad
                         decoration: const InputDecoration(
                           labelText: "Contraseña",
                           prefixIcon: Icon(Icons.lock),
                         ),
                       ),
                       const SizedBox(height: 24),
+
+                      // Botón de registro
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
@@ -85,16 +103,21 @@ class RegisterScreen extends StatelessWidget {
                             final email = emailController.text.trim();
                             final password = passwordController.text.trim();
 
-                            if (name.isEmpty || email.isEmpty || password.isEmpty) {
+                            if (name.isEmpty ||
+                                email.isEmpty ||
+                                password.isEmpty) {
+                              // Validación: todos los campos son obligatorios
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text("Por favor, completa todos los campos."),
+                                  content: Text(
+                                    "Por favor, completa todos los campos.",
+                                  ),
                                 ),
                               );
                               return;
                             }
 
-                            // TODO: Llamar al provider para registrar
+                            // TODO: Aquí debes llamar a tu provider de autenticación para registrar
                             print("Registrando: $name - $email");
                           },
                           icon: const Icon(Icons.check),
@@ -105,6 +128,8 @@ class RegisterScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // Enlace para ir a la pantalla de login
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

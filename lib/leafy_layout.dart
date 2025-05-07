@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:leafy_app_flutter/providers/General/auth_provider.dart';
-import 'package:leafy_app_flutter/providers/Plants/plant_search_provider.dart';
-import 'package:leafy_app_flutter/screens/PlantsScreen/plantDetailScreen.dart';
+import 'package:url_launcher/url_launcher.dart'; // Para abrir enlaces externos
+import 'package:leafy_app_flutter/providers/General/auth_provider.dart'; // Provider para sesión del usuario
+import 'package:leafy_app_flutter/providers/Plants/plant_search_provider.dart'; // Provider para buscar plantas
+import 'package:leafy_app_flutter/screens/PlantsScreen/plantDetailScreen.dart'; // Pantalla de detalle de planta
 
+// Componente general que envuelve todas las pantallas de la app con header, footer y buscador opcional
 class LeafyLayout extends StatefulWidget {
-  final Widget child;
-  final bool showSearchBar;
+  final Widget child; // Contenido principal de la pantalla
+  final bool showSearchBar; // Indica si debe mostrarse la barra de búsqueda
 
   const LeafyLayout({
     super.key,
@@ -22,8 +23,9 @@ class LeafyLayout extends StatefulWidget {
 class _LeafyLayoutState extends State<LeafyLayout> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  bool _isSearching = false;
+  bool _isSearching = false; // Controla si hay una búsqueda activa
 
+  // Lógica cuando el texto del buscador cambia
   void _onSearchChanged(String query) {
     Provider.of<PlantSearchProvider>(
       context,
@@ -31,6 +33,7 @@ class _LeafyLayoutState extends State<LeafyLayout> {
     ).searchPlants(query);
   }
 
+  // Limpia el buscador
   void _clearSearch() {
     _searchController.clear();
     _onSearchChanged('');
@@ -39,6 +42,7 @@ class _LeafyLayoutState extends State<LeafyLayout> {
     });
   }
 
+  // Abre una URL externa en el navegador
   Future<void> abrirUrl(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -50,20 +54,25 @@ class _LeafyLayoutState extends State<LeafyLayout> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context);
-    final plantSearchProvider = Provider.of<PlantSearchProvider>(context);
+    final auth = Provider.of<AuthProvider>(
+      context,
+    ); // Para verificar si hay sesión
+    final plantSearchProvider = Provider.of<PlantSearchProvider>(
+      context,
+    ); // Para mostrar resultados de búsqueda
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF4DC),
+      backgroundColor: const Color(0xFFEFF4DC), // Color general de fondo
       body: Column(
         children: [
           // HEADER
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: const Color(0xFFD7EAC8),
+            color: const Color(0xFFD7EAC8), // Color verde pastel del encabezado
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Fila principal del header
                 Row(
                   children: [
                     const Icon(Icons.eco, color: Colors.green),
@@ -76,6 +85,7 @@ class _LeafyLayoutState extends State<LeafyLayout> {
                       ),
                     ),
                     const Spacer(),
+                    // Botones de navegación solo si el usuario está autenticado
                     if (auth.session != null) ...[
                       TextButton(
                         onPressed:
@@ -106,6 +116,8 @@ class _LeafyLayoutState extends State<LeafyLayout> {
                     ],
                   ],
                 ),
+
+                // Barra de búsqueda (solo si se ha activado por parámetro)
                 if (widget.showSearchBar)
                   Padding(
                     padding: const EdgeInsets.only(top: 12),
@@ -149,7 +161,8 @@ class _LeafyLayoutState extends State<LeafyLayout> {
           Expanded(
             child: Stack(
               children: [
-                widget.child,
+                widget.child, // El contenido dinámico de cada pantalla
+                // Si se está buscando y hay resultados, mostramos sugerencias
                 if (_isSearching && plantSearchProvider.plants.isNotEmpty)
                   Positioned(
                     top: 0,
@@ -202,7 +215,7 @@ class _LeafyLayoutState extends State<LeafyLayout> {
             ),
           ),
 
-          // FOOTER CON ENLACES EXTERNOS
+          // FOOTER con enlaces a info legal y redes sociales
           Container(
             width: double.infinity,
             color: const Color(0xFFD7EAC8),
@@ -210,11 +223,13 @@ class _LeafyLayoutState extends State<LeafyLayout> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // Enlaces distribuidos en columnas
                 Wrap(
                   spacing: 40,
                   runSpacing: 16,
                   alignment: WrapAlignment.center,
                   children: [
+                    // Columna "Leafy"
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
@@ -228,6 +243,7 @@ class _LeafyLayoutState extends State<LeafyLayout> {
                         Text("FAQ"),
                       ],
                     ),
+                    // Columna "Legal"
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -259,6 +275,7 @@ class _LeafyLayoutState extends State<LeafyLayout> {
                         ),
                       ],
                     ),
+                    // Columna "Síguenos"
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -269,12 +286,16 @@ class _LeafyLayoutState extends State<LeafyLayout> {
                         const SizedBox(height: 8),
                         TextButton(
                           onPressed:
-                              () => abrirUrl('https://www.facebook.com/Cristiano/?locale=ca_ES'),
+                              () => abrirUrl(
+                                'https://www.facebook.com/Cristiano/?locale=ca_ES',
+                              ),
                           child: const Text("🌿 Instagram"),
                         ),
                         TextButton(
                           onPressed:
-                              () => abrirUrl('https://www.instagram.com/leomessi/'),
+                              () => abrirUrl(
+                                'https://www.instagram.com/leomessi/',
+                              ),
                           child: const Text("📘 Facebook"),
                         ),
                       ],

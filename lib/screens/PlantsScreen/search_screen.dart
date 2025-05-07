@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:leafy_app_flutter/leafy_layout.dart';
-import 'package:provider/provider.dart';
-import 'package:leafy_app_flutter/providers/Plants/plant_search_provider.dart';
-import 'plantDetailScreen.dart';
+import 'package:leafy_app_flutter/leafy_layout.dart'; // Layout general de la app
+import 'package:provider/provider.dart'; // Para usar PlantSearchProvider
+import 'package:leafy_app_flutter/providers/Plants/plant_search_provider.dart'; // Provider de búsqueda de plantas
+import 'plantDetailScreen.dart'; // Pantalla de detalle de planta
 
+// Pantalla para buscar entre las plantas registradas
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -15,6 +16,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
+    // Ejecutar después del primer render para evitar errores de contexto
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<PlantSearchProvider>(context, listen: false).searchPlants('');
     });
@@ -23,12 +25,12 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return LeafyLayout(
-      showSearchBar: false,
+      showSearchBar: false, // Usamos una barra de búsqueda personalizada
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Barra de búsqueda
+            // Barra de búsqueda con estilo personalizado
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -37,16 +39,22 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               child: TextField(
                 onChanged: (query) {
-                  Provider.of<PlantSearchProvider>(context, listen: false)
-                      .searchPlants(query);
+                  // Al escribir, filtra las plantas
+                  Provider.of<PlantSearchProvider>(
+                    context,
+                    listen: false,
+                  ).searchPlants(query);
                 },
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () {
-                      Provider.of<PlantSearchProvider>(context, listen: false)
-                          .searchPlants('');
+                      // Limpia la búsqueda
+                      Provider.of<PlantSearchProvider>(
+                        context,
+                        listen: false,
+                      ).searchPlants('');
                     },
                   ),
                   hintText: 'Buscar plantas',
@@ -57,11 +65,12 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Resultados
+            // Resultados de la búsqueda
             Expanded(
               child: Consumer<PlantSearchProvider>(
                 builder: (context, provider, _) {
                   if (provider.plants.isEmpty) {
+                    // Si no hay resultados
                     return const Center(
                       child: Text('No se encontraron plantas.'),
                     );
@@ -69,8 +78,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
                   return LayoutBuilder(
                     builder: (context, constraints) {
-                      int crossAxisCount =
-                          (constraints.maxWidth ~/ 160).clamp(2, 8);
+                      // Calcula el número de columnas según el ancho disponible
+                      int crossAxisCount = (constraints.maxWidth ~/ 160).clamp(
+                        2,
+                        8,
+                      );
 
                       return GridView.builder(
                         padding: const EdgeInsets.all(8),
@@ -83,18 +95,26 @@ class _SearchScreenState extends State<SearchScreen> {
                         itemCount: provider.plants.length,
                         itemBuilder: (context, index) {
                           final plant = provider.plants[index];
+
                           return GestureDetector(
                             onTap: () {
+                              // Ir al detalle de la planta seleccionada
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      PlantDetailScreen(plant: plant),
+                                  builder:
+                                      (context) =>
+                                          PlantDetailScreen(plant: plant),
                                 ),
                               );
                             },
                             child: Card(
-                              color: const Color.fromARGB(255, 243, 247, 240), // Fondo verde Leafy
+                              color: const Color.fromARGB(
+                                255,
+                                243,
+                                247,
+                                240,
+                              ), // Fondo Leafy
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -103,19 +123,28 @@ class _SearchScreenState extends State<SearchScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
+                                  // Imagen de la planta
                                   ClipRRect(
                                     borderRadius: const BorderRadius.vertical(
                                       top: Radius.circular(12),
                                     ),
                                     child: Container(
                                       height: 100,
-                                      color: const Color.fromARGB(255, 236, 250, 233),
+                                      color: const Color.fromARGB(
+                                        255,
+                                        236,
+                                        250,
+                                        233,
+                                      ),
                                       child: Image.network(
                                         plant.imagenPrincipal,
                                         fit: BoxFit.cover,
                                         filterQuality: FilterQuality.high,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
+                                        errorBuilder: (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) {
                                           return const Icon(
                                             Icons.broken_image,
                                             size: 50,
@@ -125,6 +154,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                       ),
                                     ),
                                   ),
+                                  // Nombre común y científico
                                   Padding(
                                     padding: const EdgeInsets.all(6.0),
                                     child: Column(

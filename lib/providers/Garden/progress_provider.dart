@@ -4,36 +4,41 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-// Provider encargado de gestionar las fotos de progreso asociadas a un jardín
+/// Provider encargado de gestionar las fotos de progreso asociadas a un jardín.
 class ProgressProvider extends ChangeNotifier {
-  List<Map<String, dynamic>> fotos = []; // Lista de fotos con su metadata
-  String? jardinId; // ID del jardín actual
+  // Lista de fotos (con su metadata: url firmada, path, fecha)
+  List<Map<String, dynamic>> fotos = [];
 
-  // Método para cargar las fotos desde la tabla 'imagenes_progreso' y obtener URLs firmadas
+  // ID del jardín seleccionado actualmente
+  String? jardinId;
+
+  /// Carga las fotos de progreso desde la base de datos y genera URLs firmadas para mostrarlas
   Future<void> cargarFotos(String idJardin) async {
     try {
       jardinId = idJardin;
 
-      // Consulta a la base de datos para obtener las fotos del jardín, ordenadas por fecha
+      // Consulta las imágenes asociadas al jardín en la tabla 'imagenes_progreso'
       final result = await Supabase.instance.client
           .from('imagenes_progreso')
           .select()
           .eq('id_jardin', idJardin)
-          .order('fecha_subida', ascending: false);
+          .order(
+            'fecha_subida',
+            ascending: false,
+          ); // Orden descendente por fecha
 
       final storage = Supabase.instance.client.storage.from('progresoplantas');
 
-      // Genera una lista de mapas con URL firmada, path y fecha
+      // Mapeamos los resultados para generar URLs firmadas de 1 hora de validez
       fotos =
           (await Future.wait(
             (result as List).map((item) async {
               final path = item['imagen_url'];
-
               try {
                 final signedUrl = await storage.createSignedUrl(
                   path,
                   60 * 60,
-                ); // 1 hora de validez
+                ); // 1h
                 return {
                   'imagen_url': signedUrl,
                   'path': path,
@@ -41,18 +46,18 @@ class ProgressProvider extends ChangeNotifier {
                 };
               } catch (e) {
                 debugPrint('No se pudo generar signedUrl para $path: $e');
-                return null; // Ignora si hay error con esta imagen
+                return null; // Si falla, se ignora esa imagen
               }
             }),
-          )).whereType<Map<String, dynamic>>().toList();
+          )).whereType<Map<String, dynamic>>().toList(); // Elimina los nulos
 
-      notifyListeners(); // Notifica cambios a la UI
+      notifyListeners(); // Notifica a la UI que se ha actualizado la lista de fotos
     } catch (e) {
       debugPrint('Error al cargar fotos: $e');
     }
   }
 
-  // Método para subir una nueva foto al almacenamiento y registrarla en la base de datos
+  /// Sube una nueva foto tomada desde cámara o galería, y la registra en la base de datos
   Future<void> subirFoto(ImageSource source) async {
     try {
       if (jardinId == null) {
@@ -61,9 +66,11 @@ class ProgressProvider extends ChangeNotifier {
       }
 
       final picker = ImagePicker();
+
+      // Abre cámara o galería según el origen indicado
       final pickedFile = await picker.pickImage(
         source: source,
-        imageQuality: 70,
+        imageQuality: 70, // Comprime la imagen
       );
       if (pickedFile == null) {
         debugPrint('No se seleccionó ninguna imagen');
@@ -76,13 +83,13 @@ class ProgressProvider extends ChangeNotifier {
         return;
       }
 
-      // Generar path único usando UUID
+      // Se genera un path único para la imagen usando UUID
       final uuid = const Uuid().v4();
       final path = '${user.id}/$jardinId/$uuid.jpg';
 
       final storage = Supabase.instance.client.storage.from('progresoplantas');
 
-      // Subir imagen en función de la plataforma (web o móvil)
+      // Sube la imagen al storage (tratamiento distinto para web y móvil)
       if (kIsWeb) {
         final bytes = await pickedFile.readAsBytes();
         await storage.uploadBinary(path, bytes);
@@ -91,22 +98,22 @@ class ProgressProvider extends ChangeNotifier {
         await storage.upload(path, file);
       }
 
-      // Insertar referencia a la imagen en la base de datos
+      // Inserta referencia de la imagen en la tabla de base de datos
       await Supabase.instance.client.from('imagenes_progreso').insert({
         'id_jardin': jardinId,
         'imagen_url': path,
         'fecha_subida': DateTime.now().toIso8601String(),
       });
 
-      // Esperar 1 segundo antes de recargar para evitar errores de sincronización
+      // Espera un segundo para asegurar que la imagen esté disponible antes de recargar
       await Future.delayed(const Duration(seconds: 1));
-      await cargarFotos(jardinId!);
+      await cargarFotos(jardinId!); // Vuelve a cargar las fotos actualizadas
     } catch (e) {
       debugPrint('Error al subir imagen: $e');
     }
   }
 
-  // Método para eliminar una foto del almacenamiento y de la base de datos
+  /// Elimina una foto del bucket y también su registro en la base de datos
   Future<bool> eliminarFoto(String path) async {
     try {
       final user = Supabase.instance.client.auth.currentUser;
@@ -114,16 +121,16 @@ class ProgressProvider extends ChangeNotifier {
 
       final storage = Supabase.instance.client.storage.from('progresoplantas');
 
-      // Elimina la imagen del bucket de Supabase Storage
+      // Elimina la imagen del almacenamiento
       await storage.remove([path]);
 
-      // Elimina el registro de la imagen en la base de datos
+      // Borra también el registro en la tabla `imagenes_progreso`
       await Supabase.instance.client
           .from('imagenes_progreso')
           .delete()
           .eq('imagen_url', path);
 
-      await cargarFotos(jardinId!); // Recarga la lista de fotos tras eliminar
+      await cargarFotos(jardinId!); // Recarga la lista de fotos
       return true;
     } catch (e) {
       debugPrint('Error al eliminar imagen: $e');
@@ -131,6 +138,7 @@ class ProgressProvider extends ChangeNotifier {
     }
   }
 
+  /// Agrega una foto directamente desde una ruta local, útil para importar fotos sin usar el picker
   Future<bool> agregarFoto(String pathLocal) async {
     try {
       if (jardinId == null) {
@@ -146,6 +154,7 @@ class ProgressProvider extends ChangeNotifier {
 
       final uuid = const Uuid().v4();
       final path = '${user.id}/$jardinId/$uuid.jpg';
+
       final storage = Supabase.instance.client.storage.from('progresoplantas');
 
       if (kIsWeb) {

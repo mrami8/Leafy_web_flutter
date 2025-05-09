@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:leafy_app_flutter/leafy_layout.dart'; // Layout general de la app
 import 'package:provider/provider.dart'; // Para usar PlantSearchProvider
-import 'package:leafy_app_flutter/providers/Plants/plant_search_provider.dart'; // Provider de búsqueda de plantas
+import 'package:leafy_app_flutter/providers/Search/plant_search_provider.dart'; // Provider de búsqueda de plantas
 import 'plantDetailScreen.dart'; // Pantalla de detalle de planta
 
 // Pantalla para buscar entre las plantas registradas

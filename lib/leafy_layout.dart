@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart'; // Para abrir enlaces externos
 import 'package:leafy_app_flutter/providers/General/auth_provider.dart'; // Provider para sesión del usuario
-import 'package:leafy_app_flutter/providers/Plants/plant_search_provider.dart'; // Provider para buscar plantas
-import 'package:leafy_app_flutter/screens/PlantsScreen/plantDetailScreen.dart'; // Pantalla de detalle de planta
+import 'package:leafy_app_flutter/providers/Search/plant_search_provider.dart'; // Provider para buscar plantas
+import 'package:leafy_app_flutter/screens/SearchScreen/plantDetailScreen.dart'; // Pantalla de detalle de planta
 
 // Componente general que envuelve todas las pantallas de la app con header, footer y buscador opcional
 class LeafyLayout extends StatefulWidget {

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:leafy_app_flutter/providers/Profile/user_profile_provider.dart';
 import 'package:leafy_app_flutter/providers/General/auth_provider.dart';
 import 'edit_profile_screen.dart';
-import 'package:leafy_app_flutter/screens/LoginScreen.dart';
+import 'package:leafy_app_flutter/screens/LoginScreen/LoginScreen.dart';
 import 'package:leafy_app_flutter/leafy_layout.dart'; // Layout general para mantener la estética web y coherencia visual
 
 // Pantalla principal de perfil del usuario

@@ -64,43 +64,41 @@ class AuthProvider extends ChangeNotifier {
 
   /// Registro de un nuevo usuario con email, contraseña, nombre y opcionalmente foto
   Future<bool> register(
-    String email,
-    String password,
-    String nombre, {
-    String foto = "",
-  }) async {
-    try {
-      final response = await supabase.auth.signUp(
-        email: email,
-        password: password,
-      );
+  String email,
+  String password,
+  String nombre,
+  String telefono, { // Agregamos el parámetro de teléfono
+  String foto = "", // Parámetro opcional para la foto de perfil
+}) async {
+  try {
+    final response = await supabase.auth.signUp(
+      email: email,
+      password: password,
+    );
 
-      final user = response.user;
+    if (response.user != null) {
+      await supabase.from('usuarios').insert({
+        'id': response.user!.id,
+        'email': email,
+        'nombre': nombre,
+        'telefono': telefono, // Inserta el teléfono
+        'foto_perfil': foto,
+        'contraseña': password,
+      });
 
-      if (user != null) {
-        // Insertar en la tabla de perfil de usuarios
-        await supabase.from('usuarios').insert({
-          'id': user.id,
-          'email': email,
-          'nombre': nombre,
-          'foto_perfil': foto,
-        });
-
-        print(
-          '✅ Usuario registrado correctamente. Esperando confirmación por correo.',
-        );
-        return true;
-      }
-
-      return false;
-    } on AuthException catch (e) {
-      print('❌ Error de registro: ${e.message}');
-      return false;
-    } catch (e) {
-      print('❌ Error inesperado: $e');
-      return false;
+      _session = response.session;
+      _user = response.user;
+      await _loadUserProfile();
+      notifyListeners();
+      return true;
     }
+
+    return false;
+  } on AuthException catch (_) {
+    return false; // Error de Supabase (ej: correo duplicado)
   }
+}
+
 
   /// Cargar perfil desde la tabla 'usuarios' usando el email como identificador
   Future<void> _loadUserProfile() async {
@@ -144,32 +142,71 @@ class AuthProvider extends ChangeNotifier {
   /// Asegura que el usuario esté registrado en la tabla 'usuarios'.
   /// Si no existe, lo crea automáticamente.
   Future<void> _asegurarUsuarioRegistrado() async {
-    if (_user == null || _user!.email == null) return;
+  if (_user == null || _user!.email == null) return;
 
-    try {
-      // Busca si el usuario ya existe por email
-      final existing =
-          await supabase
-              .from('usuarios')
-              .select()
-              .eq('email', _user!.email!)
-              .maybeSingle();
+  try {
+    final existing = await supabase
+        .from('usuarios')
+        .select()
+        .eq('email', _user!.email!)
+        .maybeSingle();
 
-      if (existing == null) {
-        // Si no existe, lo inserta como nuevo
-        await supabase.from('usuarios').insert({
-          'id': _user!.id,
-          'email': _user!.email,
-          'nombre': 'Usuario nuevo',
-          'foto_perfil': '',
-        });
+    if (existing == null) {
+      await supabase.from('usuarios').insert({
+        'id': _user!.id,
+        'email': _user!.email,
+        'nombre': 'Usuario nuevo',
+        'foto_perfil': '',
+        'telefono': '', // Registra el teléfono vacío si no existe
+      });
 
-        print('✅ Usuario creado automáticamente en tabla usuarios');
-      } else {
-        print('🟢 Usuario ya existe en tabla usuarios (por email)');
-      }
-    } catch (e) {
-      print('❌ Error asegurando usuario registrado: $e');
+      print('✅ Usuario creado automáticamente en tabla usuarios');
+    } else {
+      print('🟢 Usuario ya existe en tabla usuarios (por email)');
     }
+  } catch (e) {
+    print('❌ Error asegurando usuario registrado: $e');
   }
+}
+
+
+  Future<bool> loginWithPhone(String phone, String password) async {
+  try {
+    // Buscar usuario por teléfono
+    final result = await supabase
+        .from('usuarios')
+        .select('email, id, contraseña')
+        .eq('telefono', phone) // Buscar por teléfono
+        .maybeSingle(); // Solo obtenemos un registro
+
+    if (result != null) {
+      final email = result['email'];
+      final storedPassword = result['contraseña'];
+
+      print('Usuario encontrado por teléfono: $email');
+      print('Contraseña almacenada en base de datos: $storedPassword');
+      print('Contraseña ingresada: $password'); // Imprime la contraseña ingresada para comparar
+
+      // Comparar contraseñas
+      if (password == storedPassword) {
+        // Si las contraseñas coinciden, hacer login con el correo
+        print('Contraseña correcta, realizando login...');
+        return login(email, password); // Llamada al login con correo y contraseña
+      } else {
+        print('Contraseña incorrecta');
+        return false;
+      }
+    } else {
+      print('No se encontró un usuario con ese teléfono');
+      return false;
+    }
+  } catch (e) {
+    print('Error al intentar login con teléfono: $e');
+    return false;
+  }
+}
+
+
+
+
 }

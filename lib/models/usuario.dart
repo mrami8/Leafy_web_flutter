@@ -1,32 +1,38 @@
 class Usuario {
-  final String id;
+  final int id;
+  final String idAuth;
   final String nombre;
   final String email;
-  final String fotoPerfil;
+  final String telefono;
+  final String? fotoPerfil;
 
   Usuario({
     required this.id,
+    required this.idAuth,
     required this.nombre,
     required this.email,
-    required this.fotoPerfil,
+    required this.telefono,
+    this.fotoPerfil,
   });
 
-  // Método para crear un Usuario a partir de un Map (como el que viene de la base de datos)
-  factory Usuario.fromMap(Map<String, dynamic> data) {
+  factory Usuario.fromJson(Map<String, dynamic> json) {
     return Usuario(
-      id: data['id'],
-      nombre: data['nombre'],
-      email: data['email'],
-      fotoPerfil: data['foto_perfil'] ?? '',
+      id: json['id'],
+      idAuth: json['id_auth'],
+      nombre: json['nombre'],
+      email: json['email'],
+      telefono: json['telefono'],
+      fotoPerfil: json['foto_perfil'],
     );
   }
 
-  // Convertir Usuario a un Map para la base de datos
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'id_auth': idAuth,
       'nombre': nombre,
       'email': email,
+      'telefono': telefono,
       'foto_perfil': fotoPerfil,
     };
   }

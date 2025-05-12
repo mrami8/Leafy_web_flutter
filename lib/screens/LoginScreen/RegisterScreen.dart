@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:leafy_app_flutter/leafy_layout.dart'; // Layout base con estructura y estilos de Leafy
+import 'package:leafy_app_flutter/providers/General/auth_provider.dart'; // Provider de autenticación
 
 // Pantalla de registro de usuario
 class RegisterScreen extends StatelessWidget {
@@ -11,6 +13,7 @@ class RegisterScreen extends StatelessWidget {
     final nameController = TextEditingController();
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
+    final phoneController = TextEditingController(); // Controlador para el teléfono
 
     return LeafyLayout(
       showSearchBar: false, // No mostramos barra de búsqueda en esta pantalla
@@ -31,9 +34,7 @@ class RegisterScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(
-                      0.9,
-                    ), // Fondo blanco semitransparente
+                    color: Colors.white.withOpacity(0.9), // Fondo blanco semitransparente
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -83,6 +84,16 @@ class RegisterScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
 
+                      // Campo de teléfono
+                      TextField(
+                        controller: phoneController,
+                        decoration: const InputDecoration(
+                          labelText: "Teléfono",
+                          prefixIcon: Icon(Icons.phone),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
                       // Campo de contraseña
                       TextField(
                         controller: passwordController,
@@ -98,14 +109,13 @@ class RegisterScreen extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: () {
+                          onPressed: () async {
                             final name = nameController.text.trim();
                             final email = emailController.text.trim();
                             final password = passwordController.text.trim();
+                            final phone = phoneController.text.trim(); // Obtenemos el teléfono
 
-                            if (name.isEmpty ||
-                                email.isEmpty ||
-                                password.isEmpty) {
+                            if (name.isEmpty || email.isEmpty || password.isEmpty || phone.isEmpty) {
                               // Validación: todos los campos son obligatorios
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -117,8 +127,25 @@ class RegisterScreen extends StatelessWidget {
                               return;
                             }
 
-                            // TODO: Aquí debes llamar a tu provider de autenticación para registrar
-                            print("Registrando: $name - $email");
+                            // Llamamos al provider para registrar el usuario
+                            final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                            final success = await authProvider.register(
+                              email,
+                              password,
+                              name,
+                              phone, // Pasamos el teléfono al registrar
+                            );
+
+                            if (success) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Registro exitoso")),
+                              );
+                              Navigator.pushReplacementNamed(context, '/'); // Redirigir al login
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Error al registrarse")),
+                              );
+                            }
                           },
                           icon: const Icon(Icons.check),
                           label: const Text("Registrarse"),

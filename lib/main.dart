@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:leafy_app_flutter/screens/FlowerShopScreen/flower_store_map.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -72,6 +73,7 @@ void main() async {
           '/calendar': (context) => const CalendarScreen(),
           '/profile': (context) => const ProfileScreen(),
           '/misplantas': (context) => const PlantsScreen(),
+          '/floristerias': (context) => const FlowerStoreScreen(),
         },
       ),
     ),

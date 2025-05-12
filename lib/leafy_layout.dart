@@ -107,12 +107,18 @@ class _LeafyLayoutState extends State<LeafyLayout> {
                             () => Navigator.pushNamed(context, '/search'),
                         child: const Text("Buscar Plantas"),
                       ),
+                      TextButton(
+                        onPressed:
+                            () => Navigator.pushNamed(context, '/floristerias'),
+                        child: const Text("Floristerias"),
+                      ),
                       const SizedBox(width: 16),
                       IconButton(
                         onPressed:
                             () => Navigator.pushNamed(context, '/profile'),
                         icon: const Icon(Icons.person),
                       ),
+                    
                     ],
                   ],
                 ),

@@ -44,10 +44,7 @@ class _AddNotificationFormState extends State<AddNotificationForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Añadir notificación rápida',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+       
         const SizedBox(height: 8),
         Wrap(
           spacing: 12,

@@ -40,32 +40,31 @@ class _PlantsScreenState extends State<PlantsScreen> {
 
     showDialog(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text('Añadir nueva planta'),
-            content: TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                labelText: 'Nombre personalizado',
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  final nombre = controller.text.trim();
-                  if (nombre.isNotEmpty) {
-                    Navigator.pop(context);
-                    await anadirPlantaDummy(nombre);
-                  }
-                },
-                child: const Text('Añadir'),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: const Text('Añadir nueva planta'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Nombre personalizado',
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final nombre = controller.text.trim();
+              if (nombre.isNotEmpty) {
+                Navigator.pop(context);
+                await anadirPlantaDummy(nombre);
+              }
+            },
+            child: const Text('Añadir'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -101,17 +100,21 @@ class _PlantsScreenState extends State<PlantsScreen> {
       showSearchBar: true,
       child: Stack(
         children: [
-          // Imagen de fondo opaca
+          // Fondo de pantalla completo
           Positioned.fill(
-            child: Stack(
-              children: [
-                Image.asset('assets/FondoPantalla.jpg', fit: BoxFit.cover),
-                Container(
-                  color: Colors.black.withOpacity(
-                    0.3,
-                  ), // Oscurece la imagen sin ocultarla
+            child: Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/FondoPantalla.jpg'),
+                  fit: BoxFit.cover,
                 ),
-              ],
+              ),
+            ),
+          ),
+          // Capa ligeramente oscura para contraste
+          Positioned.fill(
+            child: Container(
+              color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.4), // Menos opaco
             ),
           ),
           // Contenido principal
@@ -143,142 +146,133 @@ class _PlantsScreenState extends State<PlantsScreen> {
             ),
             body: Padding(
               padding: const EdgeInsets.only(top: 12.0),
-              child:
-                  isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : plantas.isEmpty
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : plantas.isEmpty
                       ? const Center(
-                        child: Text('Aún no tienes plantas en tu jardín 🌿'),
-                      )
+                          child: Text('Aún no tienes plantas en tu jardín 🌿'),
+                        )
                       : GridView.builder(
-                        padding: const EdgeInsets.all(12),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 6,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 0.8,
-                            ),
-                        itemCount: plantas.length,
-                        itemBuilder: (context, index) {
-                          final jardinItem = plantas[index];
-                          final info = jardinItem['plantas'];
-                          final nombre =
-                              jardinItem['nombre_personalizado'] ??
-                              info['nombre'];
+                          padding: const EdgeInsets.all(12),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 6,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 1.0,
+                          ),
+                          itemCount: plantas.length,
+                          itemBuilder: (context, index) {
+                            final jardinItem = plantas[index];
+                            final info = jardinItem['plantas'];
+                            final nombre = jardinItem['nombre_personalizado'] ??
+                                info['nombre'];
 
-                          return Stack(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (_) => PlantGrowthPage(
-                                            jardinId: jardinItem['id'],
-                                          ),
-                                    ),
-                                  );
-                                },
-                                child: SizedBox(
-                                  height: 139,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      Expanded(
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          child: Image.asset(
-                                            'assets/platapredeterminada.png',
-                                            fit: BoxFit.cover,
-                                          ),
+                            return Stack(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => PlantGrowthPage(
+                                          jardinId: jardinItem['id'],
                                         ),
                                       ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        nombre,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                top: 8,
-                                right: 8,
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    color: Colors.black45,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: IconButton(
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                    onPressed: () async {
-                                      final confirm = await showDialog<bool>(
-                                        context: context,
-                                        builder:
-                                            (_) => AlertDialog(
-                                              title: const Text(
-                                                '¿Eliminar planta?',
+                                    );
+                                  },
+                                  child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      return Column(
+                                        children: [
+                                          SizedBox(
+                                            height: constraints.maxHeight - 30,
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              child: Image.asset(
+                                                'assets/platapredeterminada.png',
+                                                fit: BoxFit.cover,
                                               ),
-                                              content: const Text(
-                                                'Esta acción no se puede deshacer.',
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed:
-                                                      () => Navigator.pop(
-                                                        context,
-                                                        false,
-                                                      ),
-                                                  child: const Text('Cancelar'),
-                                                ),
-                                                TextButton(
-                                                  onPressed:
-                                                      () => Navigator.pop(
-                                                        context,
-                                                        true,
-                                                      ),
-                                                  child: const Text('Eliminar'),
-                                                ),
-                                              ],
                                             ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            nombre,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
                                       );
-
-                                      if (confirm == true) {
-                                        await eliminarJardin(jardinItem['id']);
-                                        if (context.mounted) {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Planta eliminada del jardín.',
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      }
                                     },
                                   ),
                                 ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.black45,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                      onPressed: () async {
+                                        final confirm =
+                                            await showDialog<bool>(
+                                          context: context,
+                                          builder: (_) => AlertDialog(
+                                            title: const Text(
+                                                '¿Eliminar planta?'),
+                                            content: const Text(
+                                                'Esta acción no se puede deshacer.'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(
+                                                        context, false),
+                                                child:
+                                                    const Text('Cancelar'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(
+                                                        context, true),
+                                                child: const Text('Eliminar'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+
+                                        if (confirm == true) {
+                                          await eliminarJardin(
+                                              jardinItem['id']);
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                    'Planta eliminada del jardín.'),
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
             ),
           ),
         ],
